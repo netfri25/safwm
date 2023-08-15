@@ -12,7 +12,7 @@ simplicity.
 ### There are some window managers that almost met my expectancies:
 * [Ragnar](https://github.com/cococry/Ragnar) - The first ever window manager that I've used. truly an amazing piece of software, but the source was hard to modify, although it was easy to understand.
 * [sowm](https://github.com/dylanaraps/sowm) - Really amazing window manager. most of my source code is inspired (stolen) from it. the only problem I had is variable naming (hard to understand the difference between `client.f` and `client.fs` - which one is focus? which one is fullscreen? both words contain `f` and `s`...) and weird control flow (it took me about an hour to understand `for win if`, until I figured out that `win` is actually a macro).\
-  sowm also created empty windows for background applications and left them there, and it also windows became invisible when trying to do a screenshot and I couldn't figure out why (this is the thing that made me decide on starting to write my own window manager).
+  sowm also killed windows instead of properly closing them, and it also windows became invisible when trying to do a screenshot and I couldn't figure out why (this is the thing that made me decide on starting to write my own window manager).
 * [dwm](https://dwm.suckless.org/) - the first minimal window manager I've encountered (but not the first one I've settled on using), but the source code was just... weird? and I was too lazy to actually understand how it works.
 * [xmonad](https://xmonad.org/) - I'm in love Haskell for about a year and a half already, but XMonad made the installation proccess and configuration a lot more complicated than it should be :(
 
@@ -34,8 +34,8 @@ exec safwm
 ## Keybindings
 ###### (more will be added in the future)
 **General window manager keybindings**
-| Key Combo               | action |
-| ----------------------- | ------- |
+| Key Combo               | action     |
+| ----------------------- | ---------- |
 | `Super` + `Shift` + `q` | quit safwm |
 
 **Window related keybindings**

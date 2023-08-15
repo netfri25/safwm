@@ -8,6 +8,7 @@
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
 // [ ] support for external bars (simple padding at the top)
+// [ ] add an array of window names to not center on creation (e.g. "neovide")
 
 #include <stdio.h>
 #include <stdlib.h>
