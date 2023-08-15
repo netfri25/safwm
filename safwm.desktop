@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=safwm
+Comment=safwm Window Manager
+Exec=safwm
+Icon=safwm
+Type=XSession

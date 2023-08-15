@@ -1,0 +1,7 @@
+CompileFlags:
+  Add:
+    - "--include-path=/usr/include/freetype2"
+    - "-pedantic"
+    - "-Wall"
+    - "-Wswitch-enum"
+    - "-Wextra"
