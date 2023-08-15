@@ -7,16 +7,22 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+typedef struct {
+    int x, y;
+    unsigned w, h;
+} Rect;
 
 
-// ##########################
-// # WindowClient functions #
-// ##########################
+
+// ################
+// # WindowClient #
+// ################
 
 typedef struct WindowClient {
     Window window;
-    int x, y;
-    unsigned w, h;
+    bool fullscreen;
+    Rect rect; // the rectangle where the window is contained
+    Rect prev; // the previous status, useful for fullscreen toggle
 } WindowClient;
 
 // construct a new WindowClient out of a window (also gets all the needed info)
@@ -29,15 +35,23 @@ void client_focus(const WindowClient* client);
 void client_quit(const WindowClient* client);
 
 // centers a window
-void client_center(const WindowClient* client);
+// INFO: not const, because it changes ->rect
+void client_center(WindowClient* client);
+
+// resizes and moves the window to the current `client->rect`
+void client_update_rect(const WindowClient* client);
 
 // maximizes a window
 // INFO: not const, because it changes ->w and ->h
 void client_maximize(WindowClient* client);
 
 // sets the client to fullscreen
-// INFO: not const, because it changes ->w and ->h
+// INFO: not const, because it changes ->prev, ->rect
 void client_fullscreen(WindowClient* client);
+
+// reverts the client from fullscreen-mode to windowed mode
+// INFO: not const, because it changes ->rect
+void client_unfullscreen(WindowClient* client);
 
 typedef struct Arg {
     const char* com;

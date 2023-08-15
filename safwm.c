@@ -4,9 +4,10 @@
 // [*] maximize key (win + m)
 // [*] fullscreen toggle option (win + f)
 // [ ] workspaces
-// [ ] more events handling (maybe?)
+// [ ] Alt+Tab window switching in the current workspace
+// [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
-// [ ] add support for external bars
+// [ ] support for external bars (simple padding at the top)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,21 +81,27 @@ int main(void) {
 }
 
 WindowClient client_from_window(Window window) {
-    WindowClient client = { .window = window };
+    WindowClient client = {
+        .window = window,
+        .fullscreen = false,
+    };
+
     Window root_return;
-    unsigned border_width_return;
-    unsigned depth_return;
+    unsigned _border_width_return;
+    unsigned _depth_return;
     XGetGeometry(
         wm.display,
         window,
         &root_return,
-        &client.x,
-        &client.y,
-        &client.w,
-        &client.h,
-        &border_width_return,
-        &depth_return
+        &client.rect.x,
+        &client.rect.y,
+        &client.rect.w,
+        &client.rect.h,
+        &_border_width_return,
+        &_depth_return
     );
+
+    client.prev = client.rect;
     return client;
 }
 
@@ -109,25 +116,54 @@ void client_focus(const WindowClient* client) {
     XConfigureWindow(wm.display, wm.current.window, CWBorderWidth, &(XWindowChanges) { .border_width = BORDER_WIDTH });
 }
 
-void client_center(const WindowClient* client) {
-    unsigned center_x = (wm.screen.w - client->w) / 2 - BORDER_WIDTH;
-    unsigned center_y = (wm.screen.h - client->h) / 2 - BORDER_WIDTH;
-    XMoveWindow(wm.display, client->window, center_x, center_y);
+void client_center(WindowClient* client) {
+    // TODO: add support for external bars
+    client->rect.x = (wm.screen.w - client->rect.w) / 2 - BORDER_WIDTH;
+    client->rect.y = (wm.screen.h - client->rect.h) / 2 - BORDER_WIDTH;
+    client_update_rect(client);
+}
+
+void client_update_rect(const WindowClient* client) {
+    XMoveResizeWindow(
+        wm.display,
+        client->window,
+        client->rect.x,
+        client->rect.y,
+        client->rect.w,
+        client->rect.h
+    );
 }
 
 void client_maximize(WindowClient* client) {
+    if (client->fullscreen) client_unfullscreen(client);
     // TODO: add support for external bars
-    client->w = wm.screen.w - 2 * BORDER_WIDTH - WINDOW_GAP;
-    client->h = wm.screen.h - 2 * BORDER_WIDTH - WINDOW_GAP;
-    XResizeWindow(wm.display, client->window, client->w, client->h);
+    client->rect = (Rect) {
+        .w = wm.screen.w - 2 * BORDER_WIDTH - 2 * WINDOW_GAP,
+        .h = wm.screen.h - 2 * BORDER_WIDTH - 2 * WINDOW_GAP,
+    };
+
     client_center(client);
 }
 
 void client_fullscreen(WindowClient* client) {
-    client->w = wm.screen.w;
-    client->h = wm.screen.h;
-    XResizeWindow(wm.display, client->window, client->w, client->h);
-    client_center(client);
+    if (client->fullscreen) return;
+    client->fullscreen = true;
+    client->prev = client->rect;
+    client->rect = (Rect) {
+        .w = wm.screen.w,
+        .h = wm.screen.h,
+        .x = -BORDER_WIDTH,
+        .y = -BORDER_WIDTH,
+    };
+
+    client_update_rect(client);
+}
+
+void client_unfullscreen(WindowClient* client) {
+    if (!client->fullscreen) return;
+    client->fullscreen = false;
+    client->rect = client->prev;
+    client_update_rect(client);
 }
 
 void grab_global_input(void) {
@@ -162,7 +198,6 @@ void event_button_press(XEvent* event) {
     wm.current = client;
     wm.mouse = event->xbutton;
     XRaiseWindow(wm.display, subwindow);
-
 }
 
 void event_button_release(XEvent* event) {
@@ -206,6 +241,7 @@ void event_map_request(XEvent* event) {
     WindowClient this_client = client_from_window(window);
     wm.current = this_client;
     client_focus(&wm.current);
+    client_center(&wm.current);
 }
 
 void event_mapping(XEvent* event) {
@@ -232,7 +268,8 @@ void event_enter(XEvent* event) {
 
 void event_motion(XEvent* event) {
     bool is_pressed = wm.mouse.button == Button1 || wm.mouse.button == Button3;
-    if (wm.mouse.subwindow == None || !is_pressed) return;
+    if (wm.mouse.subwindow == None || !is_pressed || wm.current.fullscreen) return;
+    // TODO: find the subwindow, and if it's in fullscreen then don't allow it to be moved
 
     while (XCheckTypedEvent(wm.display, MotionNotify, event));
 
@@ -240,14 +277,14 @@ void event_motion(XEvent* event) {
     int dy = event->xbutton.y_root - wm.mouse.y_root;
 
     if (wm.mouse.button == Button1) {
-        int x = wm.current.x + dx;
-        int y = wm.current.y + dy;
+        int x = wm.current.rect.x + dx;
+        int y = wm.current.rect.y + dy;
         XMoveWindow(wm.display, wm.mouse.subwindow, x, y);
     }
 
     if (wm.mouse.button == Button3) {
-        int w = wm.current.w+ dx;
-        int h = wm.current.h+ dy;
+        int w = wm.current.rect.w + dx;
+        int h = wm.current.rect.h + dy;
         XResizeWindow(wm.display, wm.mouse.subwindow, w, h);
     }
 }
@@ -296,7 +333,12 @@ void maximize_win(Arg arg) {
 
 void fullscreen_win(Arg arg) {
     (void) arg;
-    client_fullscreen(&wm.current);
+
+    if (wm.current.fullscreen) {
+        client_unfullscreen(&wm.current);
+    } else {
+        client_fullscreen(&wm.current);
+    }
 }
 
 static void update_numlock_mask(void)
