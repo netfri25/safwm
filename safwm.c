@@ -52,20 +52,8 @@ int main(void) {
     wm.display = XOpenDisplay(NULL);
     if (wm.display == NULL) return 1;
     wm.root = DefaultRootWindow(wm.display);
-    wm.screen.id = XDefaultScreen(wm.display);
+    wm.screen = DefaultScreen(wm.display);
     wm.mouse.subwindow = None;
-
-#ifdef SCREEN_WIDTH
-    wm.screen.w = SCREEN_WIDTH;
-#else
-    wm.screen.w = XDisplayWidth(wm.display, wm.screen.id);
-#endif
-
-#ifdef SCREEN_HEIGHT
-    wm.screen.h = SCREEN_HEIGHT;
-#else
-    wm.screen.h = XDisplayHeight(wm.display, wm.screen.id);
-#endif
 
     Cursor cursor = XCreateFontCursor(wm.display, 68);
     XDefineCursor(wm.display, wm.root, cursor);
@@ -122,8 +110,8 @@ void client_focus(const WindowClient* client) {
 
 void client_center(WindowClient* client) {
     // TODO: add support for external bars
-    client->rect.x = (wm.screen.w - client->rect.w) / 2 - BORDER_WIDTH;
-    client->rect.y = (wm.screen.h - client->rect.h) / 2 - BORDER_WIDTH;
+    client->rect.x = (SCREEN_WIDTH - client->rect.w) / 2 - BORDER_WIDTH;
+    client->rect.y = (SCREEN_HEIGHT - client->rect.h) / 2 - BORDER_WIDTH;
     client_update_rect(client);
 }
 
@@ -142,8 +130,8 @@ void client_maximize(WindowClient* client) {
     if (client->fullscreen) client_unfullscreen(client);
     // TODO: add support for external bars
     client->rect = (Rect) {
-        .w = wm.screen.w - 2 * BORDER_WIDTH - 2 * WINDOW_GAP,
-        .h = wm.screen.h - 2 * BORDER_WIDTH - 2 * WINDOW_GAP,
+        .w = SCREEN_WIDTH - 2 * BORDER_WIDTH - 2 * WINDOW_GAP,
+        .h = SCREEN_HEIGHT - 2 * BORDER_WIDTH - 2 * WINDOW_GAP,
     };
 
     client_center(client);
@@ -154,8 +142,8 @@ void client_fullscreen(WindowClient* client) {
     client->fullscreen = true;
     client->prev = client->rect;
     client->rect = (Rect) {
-        .w = wm.screen.w,
-        .h = wm.screen.h,
+        .w = SCREEN_WIDTH,
+        .h = SCREEN_HEIGHT,
         .x = -BORDER_WIDTH,
         .y = -BORDER_WIDTH,
     };
@@ -536,7 +524,7 @@ static void update_numlock_mask(void) {
 }
 
 static unsigned long get_color(const char* color) {
-    Colormap colormap = DefaultColormap(wm.display, wm.screen.id);
+    Colormap colormap = DefaultColormap(wm.display, wm.screen);
     XColor c;
     return XAllocNamedColor(wm.display, colormap, color, &c, &c) ? c.pixel : 0;
 }

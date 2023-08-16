@@ -129,10 +129,7 @@ typedef struct WM {
     Workspace workspace[WORKSPACE_COUNT];
     size_t current_ws; // the currently visible workspace
 
-    struct {
-        int id;
-        unsigned w, h;
-    } screen;
+    int screen; // the screen identifier
 } WM;
 
 
