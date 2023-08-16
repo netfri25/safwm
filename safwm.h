@@ -18,6 +18,7 @@ typedef struct {
 // # WindowClient #
 // ################
 
+// Window client is the WindowID (in x11 it's called just Window), with some additional information
 typedef struct WindowClient {
     Window window;
     bool fullscreen;
@@ -53,6 +54,58 @@ void client_fullscreen(WindowClient* client);
 // INFO: not const, because it changes ->rect
 void client_unfullscreen(WindowClient* client);
 
+
+
+// #############
+// # Workspace #
+// #############
+
+// this can be changed based on your need, but it probably shouldn't
+// for me, even 3 is enough because I'm mostly using every workspace for
+// one application only and I use fullscreen
+#define WORKSPACE_CLIENTS_CAPACITY 64
+
+// I really wanted to put it in "config.h", but the c includes can't
+// allow mutually recursive modules, and it sucks.
+#define WORKSPACE_COUNT 4
+
+typedef struct {
+    WindowClient client[WORKSPACE_CLIENTS_CAPACITY]; // might have holes
+    size_t focused_index; // the index of the focused_client
+} Workspace;
+
+// focus all the windows in the current workspace
+void ws_focus(const Workspace* ws);
+
+// unfocus all the windows in the current workspace
+void ws_unfocus(const Workspace* ws);
+
+// returns the index of the next empty client slot in the workspace
+// sets `is_full` to true in case the workspace is full
+size_t ws_next_empty(const Workspace* ws);
+
+// find the given WindowClient inside the workspace, and return it
+// WARN: returns NULL when the window hasn't been found
+// INFO: not const, because returning a pointer from the workspace forces
+//       the pointer to be const if the workspace is const
+WindowClient* ws_find(Workspace* ws, Window window);
+
+// sets the client at the given index to the given client
+// returns the previous window client at that index (useful when wanting to do swaps)
+WindowClient ws_set_client(Workspace* ws, size_t index, WindowClient client);
+
+// removes the client from the workspace at the given index
+// returns the previous window client at that index (useful when wanting to do swaps)
+WindowClient ws_remove_client(Workspace* ws, size_t index);
+
+// move a window from one workspace to another workspace
+void ws_move_client(size_t from, size_t to, Window window);
+
+
+// #################################
+// # General structres + functions #
+// #################################
+
 typedef struct Arg {
     const char* com;
     int i;
@@ -72,7 +125,9 @@ typedef struct WM {
     Window root;
     bool keep_alive;
     XButtonEvent mouse;
-    WindowClient current;
+
+    Workspace workspace[WORKSPACE_COUNT];
+    size_t current_ws; // the currently visible workspace
 
     struct {
         int id;
@@ -81,10 +136,11 @@ typedef struct WM {
 } WM;
 
 
+// return the currently focused WindowClient
+WindowClient* wm_client(void);
 
-// #####################
-// # General functions #
-// #####################
+// return the currently visible workspace
+Workspace* wm_workspace(void);
 
 // grabs the input globally
 void grab_global_input(void);
@@ -112,6 +168,7 @@ void event_motion(XEvent* event);
 int error_handler(Display* display, XErrorEvent* err);
 
 
+
 // ###############################
 // # Helper functions            #
 // # mostly used for keybindings #
@@ -134,3 +191,21 @@ void maximize_win(Arg arg);
 
 // sets the current window to fullscreen
 void fullscreen_win(Arg arg);
+
+// go to the given workspace
+void goto_ws(Arg arg);
+
+// go to the next workspace
+void goto_next_ws(Arg arg);
+
+// go to the previous workspace
+void goto_prev_ws(Arg arg);
+
+// move the currently focused window to the given workspace
+void move_win_to_ws(Arg arg);
+
+// move the currently focused window to the next workspace
+void move_win_to_next_ws(Arg arg);
+
+// move the currently focused window to the previous workspace
+void move_win_to_prev_ws(Arg arg);

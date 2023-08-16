@@ -21,13 +21,32 @@ static const Keymap keymaps[] = {
     // general window manager keys
     { MOD|ShiftMask, XK_q, quit_wm, { 0 }},
 
-    // applications related keys
+
+    // applications
     { MOD, XK_s,      execute_cmd, { .com = APPLICATION_RUNNER_CMD }},
     { MOD, XK_Return, execute_cmd, { .com = TERMINAL_CMD }},
 
-    // window related keys
+
+    // window controls
     { MOD, XK_c, center_win,     { 0 }},
     { MOD, XK_m, maximize_win,   { 0 }},
     { MOD, XK_f, fullscreen_win, { 0 }},
     { MOD, XK_q, close_win,      { 0 }},
+
+
+    // workspace related
+    { MOD, XK_1, goto_ws, { .i = 0 }},
+    { MOD, XK_2, goto_ws, { .i = 1 }},
+    { MOD, XK_3, goto_ws, { .i = 2 }},
+    { MOD, XK_4, goto_ws, { .i = 3 }},
+
+    { MOD|ShiftMask, XK_1, move_win_to_ws, { .i = 0 }},
+    { MOD|ShiftMask, XK_2, move_win_to_ws, { .i = 1 }},
+    { MOD|ShiftMask, XK_3, move_win_to_ws, { .i = 2 }},
+    { MOD|ShiftMask, XK_4, move_win_to_ws, { .i = 3 }},
+
+    { MOD, XK_d, goto_next_ws, {0}},
+    { MOD, XK_a, goto_prev_ws, {0}},
+    { MOD|ShiftMask, XK_d, move_win_to_next_ws, {0}},
+    { MOD|ShiftMask, XK_a, move_win_to_prev_ws, {0}},
 };
