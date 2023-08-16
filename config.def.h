@@ -1,5 +1,7 @@
 #pragma once
 
+#include <X11/XF86keysym.h>
+
 #include "safwm.h"
 
 #define MOD Mod4Mask
@@ -13,18 +15,29 @@
 #define BORDER_WIDTH  3
 #define WINDOW_GAP    10
 
-#define APPLICATION_RUNNER_CMD "rofi -show drun -theme gruvbox-dark"
-#define TERMINAL_CMD           "alacritty"
+#define SAVE_SCREENSHOT "tee $HOME/Pictures/Screenshots/$(date +'Screenshot-from-%Y-%m-%d-%H-%M-%S').png | xclip -selection clipboard -t image/png"
+#define SCREENSHOT_CMD           "maim | "    SAVE_SCREENSHOT
+#define SELECTION_SCREENSHOT_CMD "maim -s | " SAVE_SCREENSHOT
+
+#define MENU_CMD    "rofi -show drun -theme gruvbox-dark"
+#define TERM_CMD    "alacritty"
+#define BROWSER_CMD "firefox"
+
+#define BRIUP_CMD   "brightnessctl set 2%+ -n"
+#define BRIDOWN_CMD "brightnessctl set 2%- -n"
+
+#define VOLUP_CMD   "amixer sset Master 5%+"
+#define VOLDOWN_CMD "amixer sset Master 5%-"
+#define VOLMUTE_CMD "amixer sset Master toggle"
+
+#define MEDIA_NEXT_CMD   "playerctl next"
+#define MEDIA_PREV_CMD   "playerctl previous"
+#define MEDIA_TOGGLE_CMD "playerctl play-pause"
 
 #define MAPPING_COUNT (sizeof(keymaps) / sizeof(*keymaps))
 static const Keymap keymaps[] = {
     // general window manager keys
     { MOD|ShiftMask, XK_q, quit_wm, { 0 }},
-
-
-    // applications
-    { MOD, XK_s,      execute_cmd, { .com = APPLICATION_RUNNER_CMD }},
-    { MOD, XK_Return, execute_cmd, { .com = TERMINAL_CMD }},
 
 
     // window controls
@@ -34,7 +47,7 @@ static const Keymap keymaps[] = {
     { MOD, XK_q, close_win,      { 0 }},
 
 
-    // workspace related
+    // workspace controls
     { MOD, XK_1, goto_ws, { .i = 0 }},
     { MOD, XK_2, goto_ws, { .i = 1 }},
     { MOD, XK_3, goto_ws, { .i = 2 }},
@@ -49,4 +62,28 @@ static const Keymap keymaps[] = {
     { MOD, XK_a, goto_prev_ws, {0}},
     { MOD|ShiftMask, XK_d, move_win_to_next_ws, {0}},
     { MOD|ShiftMask, XK_a, move_win_to_prev_ws, {0}},
+
+
+    // applications
+    { MOD, XK_s,      execute_cmd, { .com = MENU_CMD }},
+    { MOD, XK_Return, execute_cmd, { .com = TERM_CMD }},
+    { MOD, XK_b,      execute_cmd, { .com = BROWSER_CMD }},
+
+    { ShiftMask, XK_Print, execute_cmd, { .com = SCREENSHOT_CMD }},
+    { 0,         XK_Print, execute_cmd, { .com = SELECTION_SCREENSHOT_CMD }},
+
+    { 0, XF86XK_AudioRaiseVolume, execute_cmd, { .com = VOLUP_CMD }},
+    { 0, XF86XK_AudioLowerVolume, execute_cmd, { .com = VOLDOWN_CMD }},
+    { 0, XF86XK_AudioMute,        execute_cmd, { .com = VOLMUTE_CMD }},
+    { MOD, XK_F2, execute_cmd, { .com = VOLUP_CMD }},
+    { MOD, XK_F1, execute_cmd, { .com = VOLDOWN_CMD }},
+
+    { Mod1Mask, XK_F3, execute_cmd, { .com = MEDIA_NEXT_CMD }},
+    { Mod1Mask, XK_F2, execute_cmd, { .com = MEDIA_PREV_CMD }},
+    { Mod1Mask, XK_F1, execute_cmd, { .com = MEDIA_TOGGLE_CMD }},
+
+    { 0, XF86XK_MonBrightnessUp,   execute_cmd, { .com = BRIUP_CMD }},
+    { 0, XF86XK_MonBrightnessDown, execute_cmd, { .com = BRIDOWN_CMD }},
+    { MOD, XK_F4, execute_cmd, { .com = BRIUP_CMD }},
+    { MOD, XK_F3, execute_cmd, { .com = BRIDOWN_CMD }},
 };

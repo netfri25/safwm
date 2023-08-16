@@ -52,7 +52,7 @@ exec safwm
 
 
 **Workspace keybindings**
-| Key Combo               | Action                                            |
+| Key Combo               | action                                            |
 | ----------------------- | ------------------------------------------------- |
 | `Super` + `1`           | goto workspace 1                                  |
 | `Super` + `2`           | goto workspace 2                                  |
@@ -69,7 +69,17 @@ exec safwm
 
 
 **Applications keybindings**
-| Key Combo          | action               | command                          |
-| ------------------ | -------------------- | -------------------------------- |
-| `Super` + `s`      | application launcher | `rofi -show drun -theme gruvbox` |
-| `Super` + `Return` | terminal             | `alacritty`                      |
+| Key Combo          | action                    | command                          |
+| ------------------ | ------------------------- | -------------------------------- |
+| `Super` + `s`      | application launcher      | `rofi -show drun -theme gruvbox` |
+| `Super` + `Return` | terminal                  | `alacritty`                      |
+| `Super` + `b`      | browser                   | `firefox`                        |
+| `Shift` + `Print`  | screenshot                | _compilcated long command_       |
+| `Print`            | screenshot with selection | _compilcated long command_       |
+| `Super` + `F2`     | increase volume           | `amixer sset Master 5%+`         |
+| `Super` + `F1`     | decrease volume           | `amixer sset Master 5%-`         |
+| `Alt` + `F3`       | media next track          | `playerctl next`                 |
+| `Alt` + `F2`       | media previous track      | `playerctl previous`             |
+| `Alt` + `F1`       | media toggle play/pause   | `playerctl play-pause`           |
+| `Super` + `F4`     | increase brightness       | `brightnessctl set 2%+ -n`       |
+| `Super` + `F3`     | decrease brightness       | `brightnessctl set 2%- -n`       |

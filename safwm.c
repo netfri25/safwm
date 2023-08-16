@@ -4,6 +4,7 @@
 // [*] maximize key (win + m)
 // [*] fullscreen toggle option (win + f)
 // [*] workspaces
+// [*] add all of the keybindings from my old wm
 // [ ] Alt+Tab window switching in the current workspace
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
