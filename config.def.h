@@ -9,9 +9,9 @@
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
-#define BORDER_NORMAL "#7a8478"
-#define BORDER_FOCUS  "#d3c6aa"
-#define BORDER_NONE   "#000000"
+#define BORDER_NORMAL 0x7a8478
+#define BORDER_FOCUS  0xd3c6aa
+#define BORDER_NONE   0x000000
 #define BORDER_WIDTH  3
 #define WINDOW_GAP    10
 

@@ -6,6 +6,7 @@
 // [*] workspaces
 // [*] add all of the keybindings from my old wm
 // [ ] Alt+Tab window switching in the current workspace
+// [ ] simple pseudo-tiling support
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
 // [ ] support for external bars (simple padding at the top)
@@ -28,7 +29,6 @@
 // btw I really like to steal from https://github.com/dylanaraps/sowm
 
 static void update_numlock_mask(void);
-static unsigned long get_color(const char* color);
 static size_t next_ws(void);
 static size_t prev_ws(void);
 
@@ -99,13 +99,13 @@ WindowClient client_from_window(Window window) {
 
 void client_focus(const WindowClient* client) {
     XSetInputFocus(wm.display, client->window, RevertToParent, CurrentTime);
-    if (wm_client()->window != None) XSetWindowBorder(wm.display, wm_client()->window, get_color(BORDER_NORMAL));
+    if (wm_client()->window != None) XSetWindowBorder(wm.display, wm_client()->window, BORDER_NORMAL);
     Workspace* ws = wm_workspace();
     ws->focused_index = client - ws->client;
 
     // TODO: handle fullscreen
     // TODO: add green border for windows that are "pinned"
-    XSetWindowBorder(wm.display, client->window, get_color(BORDER_FOCUS));
+    XSetWindowBorder(wm.display, client->window, BORDER_FOCUS);
     XConfigureWindow(wm.display, client->window, CWBorderWidth, &(XWindowChanges) { .border_width = BORDER_WIDTH });
 }
 
@@ -522,10 +522,4 @@ static void update_numlock_mask(void) {
 				== XKeysymToKeycode(wm.display, XK_Num_Lock))
 				numlockmask = (1 << i);
 	XFreeModifiermap(modmap);
-}
-
-static unsigned long get_color(const char* color) {
-    Colormap colormap = DefaultColormap(wm.display, wm.screen);
-    XColor c;
-    return XAllocNamedColor(wm.display, colormap, color, &c, &c) ? c.pixel : 0;
 }
