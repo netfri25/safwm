@@ -5,7 +5,7 @@
 // [*] fullscreen toggle option (win + f)
 // [*] workspaces
 // [*] add all of the keybindings from my old wm
-// [ ] Alt+Tab window switching in the current workspace
+// [*] Alt+Tab window switching in the current workspace
 // [ ] simple pseudo-tiling support
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
@@ -163,10 +163,10 @@ void ws_focus(const Workspace* ws) {
     for (size_t i = 0; i < WORKSPACE_CLIENTS_CAPACITY; i++) {
         // this two lines make sure that the currently focused client is the
         // last window to get mapped
-        // size_t index_from_back = WORKSPACE_CLIENTS_CAPACITY - i - 1;
-        // size_t index = (index_from_back + ws->focused_index) % WORKSPACE_CLIENTS_CAPACITY;
+        size_t index_from_back = WORKSPACE_CLIENTS_CAPACITY - i - 1;
+        size_t index = (index_from_back + ws->focused_index) % WORKSPACE_CLIENTS_CAPACITY;
 
-        const WindowClient* client = ws->client + i;
+        const WindowClient* client = ws->client + index;
         if (client->window == None) continue;
         XMapWindow(wm.display, client->window);
     }
@@ -192,6 +192,31 @@ size_t ws_next_empty(const Workspace* ws) {
     }
 
     return i;
+}
+
+WindowClient* ws_next_window(Workspace* ws) {
+    size_t off = ws->focused_index;
+    for (size_t i = 0; i < WORKSPACE_CLIENTS_CAPACITY; i++) {
+        size_t index = (i + off + 1) % WORKSPACE_CLIENTS_CAPACITY;
+        WindowClient* client = ws->client + index;
+        if (client->window == None) continue;
+        return client;
+    }
+
+    return NULL;
+}
+
+WindowClient* ws_prev_window(Workspace* ws) {
+    size_t off = ws->focused_index;
+    for (size_t i = 0; i < WORKSPACE_CLIENTS_CAPACITY; i++) {
+        size_t index_from_back = WORKSPACE_CLIENTS_CAPACITY - i - 1;
+        size_t index = (index_from_back + off) % WORKSPACE_CLIENTS_CAPACITY;
+        WindowClient* client = ws->client + index;
+        if (client->window == None) continue;
+        return client;
+    }
+
+    return NULL;
 }
 
 WindowClient* ws_find(Workspace* ws, Window window) {
@@ -508,6 +533,22 @@ void move_win_to_prev_ws(Arg arg) {
     arg.i = prev_ws_index;
     move_win_to_ws(arg);
     goto_ws(arg);
+}
+
+void win_next(Arg arg) {
+    (void) arg;
+    WindowClient* client = ws_next_window(wm_workspace());
+    if (client == NULL) return;
+    client_focus(client);
+    XRaiseWindow(wm.display, client->window);
+}
+
+void win_prev(Arg arg) {
+    (void) arg;
+    WindowClient* client = ws_prev_window(wm_workspace());
+    if (client == NULL) return;
+    client_focus(client);
+    XRaiseWindow(wm.display, client->window);
 }
 
 static void update_numlock_mask(void) {

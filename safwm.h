@@ -84,6 +84,12 @@ void ws_unfocus(const Workspace* ws);
 // sets `is_full` to true in case the workspace is full
 size_t ws_next_empty(const Workspace* ws);
 
+// returns the next window in the workspace
+WindowClient* ws_next_window(Workspace* ws);
+
+// returns the previous window in the workspace
+WindowClient* ws_prev_window(Workspace* ws);
+
 // find the given WindowClient inside the workspace, and return it
 // WARN: returns NULL when the window hasn't been found
 // INFO: not const, because returning a pointer from the workspace forces
@@ -207,3 +213,9 @@ void move_win_to_next_ws(Arg arg);
 
 // move the currently focused window to the previous workspace
 void move_win_to_prev_ws(Arg arg);
+
+// switch to the next window in the workspace
+void win_next(Arg arg);
+
+// switch to the previous window in the workspace
+void win_prev(Arg arg);

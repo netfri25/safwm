@@ -63,6 +63,8 @@ static const Keymap keymaps[] = {
     { MOD|ShiftMask, XK_d, move_win_to_next_ws, {0}},
     { MOD|ShiftMask, XK_a, move_win_to_prev_ws, {0}},
 
+    { Mod1Mask,           XK_Tab, win_next, {0}},
+    { Mod1Mask|ShiftMask, XK_Tab, win_prev, {0}},
 
     // applications
     { MOD, XK_s,      execute_cmd, { .com = MENU_CMD }},

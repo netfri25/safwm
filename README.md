@@ -52,20 +52,22 @@ exec safwm
 
 
 **Workspace keybindings**
-| Key Combo               | action                                            |
-| ----------------------- | ------------------------------------------------- |
-| `Super` + `1`           | goto workspace 1                                  |
-| `Super` + `2`           | goto workspace 2                                  |
-| `Super` + `3`           | goto workspace 3                                  |
-| `Super` + `4`           | goto workspace 4                                  |
-| `Super` + `Shift` + `1` | move the focused window to workspace 1            |
-| `Super` + `Shift` + `2` | move the focused window to workspace 2            |
-| `Super` + `Shift` + `3` | move the focused window to workspace 3            |
-| `Super` + `Shift` + `4` | move the focused window to workspace 4            |
-| `Super` + `d`           | go to the next workspace                          |
-| `Super` + `a`           | go to the previous workspace                      |
-| `Super` + `Shift` + `d` | move the focused window to the next workspace     |
-| `Super` + `Shift` + `a` | move the focused window to the previous workspace |
+| Key Combo               | action                                              |
+| ----------------------- | --------------------------------------------------- |
+| `Super` + `1`           | goto workspace 1                                    |
+| `Super` + `2`           | goto workspace 2                                    |
+| `Super` + `3`           | goto workspace 3                                    |
+| `Super` + `4`           | goto workspace 4                                    |
+| `Super` + `Shift` + `1` | move the focused window to workspace 1              |
+| `Super` + `Shift` + `2` | move the focused window to workspace 2              |
+| `Super` + `Shift` + `3` | move the focused window to workspace 3              |
+| `Super` + `Shift` + `4` | move the focused window to workspace 4              |
+| `Super` + `d`           | go to the next workspace                            |
+| `Super` + `a`           | go to the previous workspace                        |
+| `Super` + `Shift` + `d` | move the focused window to the next workspace       |
+| `Super` + `Shift` + `a` | move the focused window to the previous workspace   |
+| `Alt` + `Tab`           | focus the next window in the current workspace      |
+| `Alt` + `Shift` + `Tab` | focues the previous window in the current workspace |
 
 
 **Applications keybindings**
