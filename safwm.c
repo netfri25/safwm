@@ -13,7 +13,6 @@
 // [ ] support for external bars (simple padding at the top)
 // [ ] add an array of window names to not center on creation (e.g. "neovide")
 
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
