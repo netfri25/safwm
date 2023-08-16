@@ -174,13 +174,15 @@ void grab_window_input(Window window);
 
 void event_button_press(XEvent* event);
 void event_button_release(XEvent* event);
-void event_configure_request(XEvent* event);
+void event_configure(XEvent* event);
 void event_key_press(XEvent* event);
 void event_map_request(XEvent* event);
 void event_mapping(XEvent* event);
 void event_destroy(XEvent* event);
 void event_enter(XEvent* event);
 void event_motion(XEvent* event);
+void event_create(XEvent* event);
+void event_resize(XEvent* event);
 
 // handle x11 errors
 int error_handler(Display* display, XErrorEvent* err);

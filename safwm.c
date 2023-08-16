@@ -39,16 +39,18 @@ static unsigned numlockmask = 0;
 
 static WM wm = {0};
 
-static void (*events[LASTEvent])(XEvent *e) = {
+static void (*events[LASTEvent])(XEvent* e) = {
     [ButtonPress]      = event_button_press,
     [ButtonRelease]    = event_button_release,
-    [ConfigureRequest] = event_configure_request,
+    [ConfigureRequest] = event_configure,
     [KeyPress]         = event_key_press,
     [MapRequest]       = event_map_request,
     [MappingNotify]    = event_mapping,
     [DestroyNotify]    = event_destroy,
     [EnterNotify]      = event_enter,
-    [MotionNotify]     = event_motion
+    [MotionNotify]     = event_motion,
+    [CreateNotify]     = event_create,
+    [ResizeRequest]    = event_resize,
 };
 
 int main(void) {
@@ -63,7 +65,7 @@ int main(void) {
     XDefineCursor(wm.display, wm.root, cursor);
     XSetErrorHandler(error_handler);
 
-    XSelectInput(wm.display, wm.root, SubstructureRedirectMask);
+    XSelectInput(wm.display, wm.root, SubstructureRedirectMask|SubstructureNotifyMask);
     grab_global_input();
 
     wm.keep_alive = true;
@@ -278,7 +280,7 @@ void grab_window_input(Window window) {
     XUngrabKey(wm.display, AnyKey, AnyModifier, window);
     XUngrabButton(wm.display, AnyButton, AnyModifier, window);
 
-    unsigned int mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
+    unsigned int mask = ButtonMotionMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
     int mode = GrabModeAsync;
 
     // mouse buttons with main modifier key
@@ -314,7 +316,7 @@ void event_button_release(XEvent* event) {
     wm.mouse.subwindow = None;
 }
 
-void event_configure_request(XEvent* event) {
+void event_configure(XEvent* event) {
     XConfigureRequestEvent *ev = &event->xconfigurerequest;
 
     XConfigureWindow(wm.display, ev->window, ev->value_mask, &(XWindowChanges) {
@@ -325,6 +327,19 @@ void event_configure_request(XEvent* event) {
         .sibling    = ev->above,
         .stack_mode = ev->detail
     });
+
+    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
+        Workspace* ws = wm.workspace + i;
+        WindowClient* client = ws_find(ws, ev->window);
+        if (client == NULL) continue;
+
+        client->rect.x = ev->x;
+        client->rect.y = ev->y;
+        client->rect.w = ev->width;
+        client->rect.h = ev->height;
+        client_update_rect(client);
+        break;
+    }
 }
 
 void event_key_press(XEvent* event) {
@@ -346,19 +361,6 @@ void event_map_request(XEvent* event) {
     Window window = event->xmaprequest.window;
     XSelectInput(wm.display, window, StructureNotifyMask|EnterWindowMask);
     XMapWindow(wm.display, window);
-    WindowClient this_client = client_from_window(window);
-
-    // TODO: proper error handling
-    Workspace* current_ws = wm_workspace();
-    size_t client_index = ws_next_empty(current_ws);
-
-    ws_set_client(current_ws, client_index, this_client);
-
-    WindowClient* current_client = wm_workspace()->client + client_index;
-    client_focus(current_client);
-    int x = current_client->rect.x;
-    int y = current_client->rect.y;
-    if (x + y == 0) client_center(current_client);
 }
 
 void event_mapping(XEvent* event) {
@@ -423,10 +425,48 @@ void event_motion(XEvent* event) {
     wm.mouse.y_root = event->xmotion.y_root;
 }
 
+void event_create(XEvent* event) {
+    Window window = event->xcreatewindow.window;
+    WindowClient this_client = client_from_window(window);
+
+    // TODO: proper error handling
+    Workspace* current_ws = wm_workspace();
+    size_t client_index = ws_next_empty(current_ws);
+
+    ws_set_client(current_ws, client_index, this_client);
+
+    WindowClient* client = wm_workspace()->client + client_index;
+    client_focus(client);
+    int x = client->rect.x;
+    int y = client->rect.y;
+    if (x + y == 0) client_center(client);
+}
+
+void event_resize(XEvent* event) {
+    XResizeRequestEvent req = event->xresizerequest;
+    XResizeWindow(req.display, req.window, req.width, req.height);
+
+    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
+        Workspace* ws = wm.workspace + i;
+        WindowClient* client = ws_find(ws, req.window);
+        if (client == NULL) continue;
+
+        client->rect.w = req.width;
+        client->rect.h = req.height;
+        client_update_rect(client);
+        break;
+    }
+}
+
 int error_handler(Display* display, XErrorEvent* err) {
     char err_msg[1024];
     XGetErrorText(display, err->error_code, err_msg, sizeof(err_msg));
-    fprintf(stderr, "X-Error(req: %u, code: %u, res_id: %lu)\n", err->request_code, err->error_code, err->resourceid);
+    fprintf(stderr, "X-Error(req: %u, code: %u, res_id: %lu): %.*s\n",
+            err->request_code,
+            err->error_code,
+            err->resourceid,
+            (int) sizeof(err_msg),
+            err_msg);
     return 0;
 }
 
