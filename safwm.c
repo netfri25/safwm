@@ -23,8 +23,10 @@
 
 #include "safwm.h"
 #include "config.h"
+#include "keymaps.h"
 
 #define MOD_MASK(mask) (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
+#define MAPPING_COUNT (sizeof(keymaps) / sizeof(*keymaps))
 
 // btw I really like to steal from https://github.com/dylanaraps/sowm
 

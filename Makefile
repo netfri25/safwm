@@ -9,7 +9,7 @@ all: safwm
 config.h:
 	cp config.def.h config.h
 
-safwm: safwm.c safwm.h config.h Makefile
+safwm: safwm.c safwm.h keymaps.h config.h Makefile
 	$(CC) -O3 $(CFLAGS) -o $@ $< -lX11 $(LDFLAGS)
 
 install: all
