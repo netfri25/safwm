@@ -140,6 +140,20 @@ typedef struct WM {
 } WM;
 
 
+// the first bit indicates the axis:
+// 0: y axis
+// 1: x axis
+// the second bit indicates if it's in the "opposite" direction, which means that
+// the ratio will become 1-SNAP_RATIO instead of SNAP_RATIO
+// 0: SNAP_RATIO
+// 1: 1-SNAP_RATIO
+enum Direction {
+    D_UP    = 0b00,
+    D_DOWN  = 0b10,
+    D_RIGHT = 0b11,
+    D_LEFT  = 0b01,
+};
+
 // return the currently focused WindowClient
 WindowClient* wm_client(void);
 
@@ -219,3 +233,6 @@ void win_next(Arg arg);
 
 // switch to the previous window in the workspace
 void win_prev(Arg arg);
+
+// slice the current window in the given direction (snapping)
+void win_slice(Arg arg);

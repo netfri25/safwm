@@ -14,6 +14,10 @@ const Keymap keymaps[] = {
     { MOD, XK_f, fullscreen_win, { 0 }},
     { MOD, XK_q, close_win,      { 0 }},
 
+    { MOD, XK_k, win_slice, { .i = D_UP }},
+    { MOD, XK_j, win_slice, { .i = D_DOWN }},
+    { MOD, XK_l, win_slice, { .i = D_RIGHT }},
+    { MOD, XK_h, win_slice, { .i = D_LEFT }},
 
     // workspace controls
     { MOD, XK_1, goto_ws, { .i = 0 }},

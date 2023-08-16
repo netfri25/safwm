@@ -13,6 +13,8 @@
 #define BORDER_WIDTH  3
 #define WINDOW_GAP    10
 
+#define SNAP_RATIO 0.55
+
 #define SAVE_SCREENSHOT "tee $HOME/Pictures/Screenshots/$(date +'Screenshot-from-%Y-%m-%d-%H-%M-%S').png | xclip -selection clipboard -t image/png"
 #define SCREENSHOT_CMD           "maim | "    SAVE_SCREENSHOT
 #define SELECTION_SCREENSHOT_CMD "maim -s | " SAVE_SCREENSHOT

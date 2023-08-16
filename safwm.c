@@ -6,12 +6,14 @@
 // [*] workspaces
 // [*] add all of the keybindings from my old wm
 // [*] Alt+Tab window switching in the current workspace
-// [ ] simple pseudo-tiling support
+// [*] simple pseudo-tiling support
+// [ ] "undo" for the pseudo-tiling
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
 // [ ] support for external bars (simple padding at the top)
 // [ ] add an array of window names to not center on creation (e.g. "neovide")
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -551,6 +553,31 @@ void win_prev(Arg arg) {
     if (client == NULL) return;
     client_focus(client);
     XRaiseWindow(wm.display, client->window);
+}
+
+// coolest fucking code I've ever written
+void win_slice(Arg arg) {
+    WindowClient* client = wm_client();
+    if (!client || client->window == None || client->fullscreen) return;
+
+    enum Direction direction = arg.i;
+    bool x_axis = direction & 1;
+    bool opposite = (direction >> 1) & 1;
+    float ratio = opposite ? 1 - SNAP_RATIO : SNAP_RATIO;
+
+    int*      pos  = (int*      [2]) { &client->rect.y, &client->rect.x }[x_axis];
+    unsigned* size = (unsigned* [2]) { &client->rect.h, &client->rect.w }[x_axis];
+
+    // size = size0 * ratio - gap
+    float new_size = *size * ratio - WINDOW_GAP;
+
+    // delta = size0 * (1 - ratio) + gap
+    float delta = *size * (1 - ratio) + WINDOW_GAP;
+
+    *pos += opposite * delta;
+    *size = MAX(1, new_size);
+
+    client_update_rect(client);
 }
 
 static void update_numlock_mask(void) {

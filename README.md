@@ -40,7 +40,7 @@ exec safwm
 
 
 **Window related keybindings**
-| Key Combo       | action             |
+| Key Combo       | action              |
 | --------------- | ------------------- |
 | `Mouse`         | focus under cursor  |
 | `Super` + `LMB` | move window         |
@@ -49,6 +49,10 @@ exec safwm
 | `Super` + `m`   | maximize window     |
 | `Super` + `f`   | fullscreen window   |
 | `Super` + `q`   | quit window         |
+| `Super` + `h`   | snap left           |
+| `Super` + `l`   | snap right          |
+| `Super` + `k`   | snap up             |
+| `Super` + `j`   | snap down           |
 
 
 **Workspace keybindings**
