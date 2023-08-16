@@ -102,6 +102,7 @@ WindowClient ws_remove_client(Workspace* ws, size_t index);
 void ws_move_client(size_t from, size_t to, Window window);
 
 
+
 // #################################
 // # General structres + functions #
 // #################################
