@@ -94,7 +94,12 @@ WindowClient* ws_prev_window(Workspace* ws);
 // WARN: returns NULL when the window hasn't been found
 // INFO: not const, because returning a pointer from the workspace forces
 //       the pointer to be const if the workspace is const
-WindowClient* ws_find(Workspace* ws, Window window);
+WindowClient* ws_get(Workspace* ws, Window window);
+
+// returns the index of the given window inside the workspace
+// WARN: in case where the window is not found inside the workspace,
+//       the function will return -1.
+ssize_t ws_find(const Workspace* ws, Window window);
 
 // sets the client at the given index to the given client
 // returns the previous window client at that index (useful when wanting to do swaps)
@@ -103,6 +108,9 @@ WindowClient ws_set_client(Workspace* ws, size_t index, WindowClient client);
 // removes the client from the workspace at the given index
 // returns the previous window client at that index (useful when wanting to do swaps)
 WindowClient ws_remove_client(Workspace* ws, size_t index);
+
+// inserts a window client to the next empty spot
+void ws_insert(Workspace* ws, WindowClient client);
 
 // move a window from one workspace to another workspace
 void ws_move_client(size_t from, size_t to, Window window);
@@ -159,6 +167,9 @@ WindowClient* wm_client(void);
 
 // return the currently visible workspace
 Workspace* wm_workspace(void);
+
+// searches for the window in all of the workspaces
+WindowClient* wm_get_client(Window window);
 
 // grabs the input globally
 void grab_global_input(void);

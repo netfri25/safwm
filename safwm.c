@@ -54,12 +54,18 @@ static void (*events[LASTEvent])(XEvent* e) = {
 };
 
 int main(void) {
-    wm = (WM){0};
     wm.display = XOpenDisplay(NULL);
     if (wm.display == NULL) return 1;
     wm.root = DefaultRootWindow(wm.display);
     wm.screen = DefaultScreen(wm.display);
     wm.mouse.subwindow = None;
+
+    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
+        wm.workspace[i] = (Workspace){0};
+        for (size_t j = 0; j < WORKSPACE_CLIENTS_CAPACITY; j++) {
+            wm.workspace[i].client[j] = (WindowClient){0};
+        }
+    }
 
     Cursor cursor = XCreateFontCursor(wm.display, 68);
     XDefineCursor(wm.display, wm.root, cursor);
@@ -106,7 +112,9 @@ void client_focus(const WindowClient* client) {
     XSetInputFocus(wm.display, client->window, RevertToParent, CurrentTime);
     if (wm_client()->window != None) XSetWindowBorder(wm.display, wm_client()->window, BORDER_NORMAL);
     Workspace* ws = wm_workspace();
-    ws->focused_index = client - ws->client;
+    ssize_t index = ws_find(ws, client->window);
+    if (index == -1) return;
+    ws->focused_index = index;
 
     // TODO: handle fullscreen
     // TODO: add green border for windows that are "pinned"
@@ -186,12 +194,9 @@ void ws_unfocus(const Workspace* ws) {
 }
 
 size_t ws_next_empty(const Workspace* ws) {
-    size_t i;
-    for (i = 0; i < WORKSPACE_CLIENTS_CAPACITY; i++)
-        if (ws->client[i].window == None) break;
+    ssize_t i = ws_find(ws, None);
 
-    bool is_full = i == WORKSPACE_CLIENTS_CAPACITY;
-    if (is_full) {
+    if (i == -1) {
         fprintf(stderr, "ERROR: workspace is full and can't fit more windows.\n");
         exit(1);
     }
@@ -224,14 +229,19 @@ WindowClient* ws_prev_window(Workspace* ws) {
     return NULL;
 }
 
-WindowClient* ws_find(Workspace* ws, Window window) {
+WindowClient* ws_get(Workspace* ws, Window window) {
+    ssize_t index = ws_find(ws, window);
+    return index >= 0 ? ws->client + index : NULL;
+}
+
+ssize_t ws_find(const Workspace* ws, Window window) {
     for (size_t i = 0; i < WORKSPACE_CLIENTS_CAPACITY; i++) {
-        WindowClient* client = ws->client + i;
+        const WindowClient* client = ws->client + i;
         if (window == client->window)
-            return client;
+            return i;
     }
 
-    return NULL;
+    return -1;
 }
 
 WindowClient ws_set_client(Workspace* ws, size_t index, WindowClient client) {
@@ -246,19 +256,21 @@ WindowClient ws_remove_client(Workspace* ws, size_t index) {
     return ws_set_client(ws, index, (WindowClient){ .window = None });
 }
 
+void ws_insert(Workspace* ws, WindowClient client) {
+    size_t index = ws_next_empty(ws);
+    ws_set_client(ws, index, client);
+}
+
 void ws_move_client(size_t from, size_t to, Window window) {
     assert(from < WORKSPACE_CLIENTS_CAPACITY && "out of bounds");
     assert(to   < WORKSPACE_CLIENTS_CAPACITY && "out of bounds");
     Workspace* from_ws = wm.workspace + from;
     Workspace* to_ws   = wm.workspace + to;
 
-    WindowClient* client = ws_find(from_ws, window);
+    WindowClient* client = ws_get(from_ws, window);
     assert(client && "client should always be in the `from` workspace");
-    // WARN: pointer arithmetics
-    size_t client_original_index = client - from_ws->client;
-    size_t client_new_index = ws_next_empty(to_ws);
-    ws_set_client(to_ws, client_new_index, *client);
-    ws_remove_client(from_ws, client_original_index);
+    ws_insert(to_ws, *client);
+    client->window = None; // set the client as removed
 }
 
 WindowClient* wm_client(void) {
@@ -270,6 +282,16 @@ WindowClient* wm_client(void) {
 
 Workspace* wm_workspace(void) {
     return wm.workspace + wm.current_ws;
+}
+
+WindowClient* wm_get_client(Window window) {
+    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
+        Workspace* ws = wm.workspace + i;
+        WindowClient* client = ws_get(ws, window);
+        if (client) return client;
+    }
+
+    return NULL;
 }
 
 void grab_global_input(void) {
@@ -301,13 +323,11 @@ void event_button_press(XEvent* event) {
     // I don't care if there is a click on nothing
     if (window == None) return;
 
-    WindowClient* client = ws_find(wm_workspace(), window);
-    assert(client && "how did you click a client that doesn't exist in the visible workspace?");
+    ssize_t client_index = ws_find(wm_workspace(), window);
+    assert(client_index >= 0 && "how did you click a client that doesn't exist in the visible workspace?");
 
-    // WARN: pointer arithmetics
-    size_t client_index = client - wm_workspace()->client;
-    wm_workspace()->focused_index = client_index;
     wm.mouse = event->xbutton;
+    wm_workspace()->focused_index = client_index;
     XRaiseWindow(wm.display, window);
 }
 
@@ -328,17 +348,13 @@ void event_configure(XEvent* event) {
         .stack_mode = ev->detail
     });
 
-    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
-        Workspace* ws = wm.workspace + i;
-        WindowClient* client = ws_find(ws, ev->window);
-        if (client == NULL) continue;
-
+    WindowClient* client = wm_get_client(ev->window);
+    if (client) {
         client->rect.x = ev->x;
         client->rect.y = ev->y;
         client->rect.w = ev->width;
         client->rect.h = ev->height;
         client_update_rect(client);
-        break;
     }
 }
 
@@ -378,12 +394,11 @@ void event_destroy(XEvent* event) {
     // think it should be optimized
     for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
         Workspace* workspace = wm.workspace + i;
-        WindowClient* client = ws_find(workspace, event->xdestroywindow.window);
-        if (client == NULL) continue;
-        // WARN: pointer arithmetics for finding the client index
-        size_t client_index = client - workspace->client;
-        ws_remove_client(workspace, client_index);
-        break;
+        ssize_t client_index = ws_find(workspace, event->xdestroywindow.window);
+        if (client_index >= 0) {
+            ws_remove_client(workspace, client_index);
+            break;
+        }
     }
 }
 
@@ -391,7 +406,7 @@ void event_enter(XEvent* event) {
     while (XCheckTypedEvent(wm.display, EnterNotify, event));
     while (XCheckTypedWindowEvent(wm.display, wm.mouse.subwindow, MotionNotify, event));
 
-    WindowClient* client = ws_find(wm_workspace(), event->xcrossing.window);
+    WindowClient* client = ws_get(wm_workspace(), event->xcrossing.window);
     if (client == NULL) return;
     client_focus(client);
 }
@@ -400,7 +415,7 @@ void event_motion(XEvent* event) {
     bool is_pressed = wm.mouse.button == Button1 || wm.mouse.button == Button3;
     if (!is_pressed) return;
 
-    WindowClient* client = ws_find(wm_workspace(), wm.mouse.subwindow);
+    WindowClient* client = ws_get(wm_workspace(), wm.mouse.subwindow);
     if (client == NULL || client->window == None || client->fullscreen) return;
 
     while (XCheckTypedEvent(wm.display, MotionNotify, event));
@@ -429,13 +444,14 @@ void event_create(XEvent* event) {
     Window window = event->xcreatewindow.window;
     WindowClient this_client = client_from_window(window);
 
-    // TODO: proper error handling
-    Workspace* current_ws = wm_workspace();
-    size_t client_index = ws_next_empty(current_ws);
+    printf("Created %lu\n", window);
 
-    ws_set_client(current_ws, client_index, this_client);
+    Workspace* ws = wm_workspace();
+    size_t client_index = ws_next_empty(ws);
 
-    WindowClient* client = wm_workspace()->client + client_index;
+    ws_set_client(ws, client_index, this_client);
+
+    WindowClient* client = ws->client + client_index;
     client_focus(client);
     int x = client->rect.x;
     int y = client->rect.y;
@@ -446,15 +462,11 @@ void event_resize(XEvent* event) {
     XResizeRequestEvent req = event->xresizerequest;
     XResizeWindow(req.display, req.window, req.width, req.height);
 
-    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
-        Workspace* ws = wm.workspace + i;
-        WindowClient* client = ws_find(ws, req.window);
-        if (client == NULL) continue;
-
+    WindowClient* client = wm_get_client(req.window);
+    if (client) {
         client->rect.w = req.width;
         client->rect.h = req.height;
         client_update_rect(client);
-        break;
     }
 }
 
@@ -582,6 +594,7 @@ void win_next(Arg arg) {
     (void) arg;
     WindowClient* client = ws_next_window(wm_workspace());
     if (client == NULL) return;
+    printf("Client(window: %lu)\n", client->window);
     client_focus(client);
     XRaiseWindow(wm.display, client->window);
 }
