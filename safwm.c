@@ -309,6 +309,17 @@ void grab_window_input(Window window) {
     }
 }
 
+bool is_out(const WindowClient* client) {
+    int x = client->rect.x;
+    int y = client->rect.y;
+    unsigned w = client->rect.w;
+    unsigned h = client->rect.w;
+    return x - BORDER_WIDTH <= 0
+        || y - BORDER_WIDTH <= 0
+        || x + w + 2 * BORDER_WIDTH >= SCREEN_WIDTH
+        || y + h + 2 * BORDER_WIDTH >= SCREEN_HEIGHT;
+}
+
 void event_button_press(XEvent* event) {
     Window window = event->xbutton.subwindow;
 
@@ -331,23 +342,27 @@ void event_button_release(XEvent* event) {
 void event_configure(XEvent* event) {
     XConfigureRequestEvent *ev = &event->xconfigurerequest;
 
-    XConfigureWindow(wm.display, ev->window, ev->value_mask, &(XWindowChanges) {
-        .x          = ev->x - BORDER_WIDTH,
-        .y          = ev->y - BORDER_WIDTH,
-        .width      = ev->width,
-        .height     = ev->height,
-        .sibling    = ev->above,
-        .stack_mode = ev->detail
-    });
-
     WindowClient* client = wm_get_client(ev->window);
-    if (client) {
-        client->rect.x = ev->x - BORDER_WIDTH;
-        client->rect.y = ev->y - BORDER_WIDTH;
+    if (!client) return;
+
+    if (is_out(client)) {
+        client_center(client);
+    } else {
+        client->rect.x = ev->x - BORDER_WIDTH,
+        client->rect.y = ev->y - BORDER_WIDTH,
         client->rect.w = ev->width;
         client->rect.h = ev->height;
         client_update_rect(client);
     }
+
+    XConfigureWindow(wm.display, ev->window, ev->value_mask, &(XWindowChanges) {
+        .x          = client->rect.x,
+        .y          = client->rect.y,
+        .width      = client->rect.w,
+        .height     = client->rect.h,
+        .sibling    = ev->above,
+        .stack_mode = ev->detail
+    });
 }
 
 void event_key_press(XEvent* event) {
@@ -378,9 +393,7 @@ void event_map_request(XEvent* event) {
 
     WindowClient* client = ws->client + client_index;
     client_focus(client);
-    int x = client->rect.x;
-    int y = client->rect.y;
-    if (x + y == 0) client_center(client);
+    if (is_out(client)) client_center(client);
 }
 
 void event_mapping(XEvent* event) {

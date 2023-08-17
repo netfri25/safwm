@@ -177,6 +177,8 @@ void grab_global_input(void);
 // grabs the input only in a specified window
 void grab_window_input(Window window);
 
+// returns true if the window is out of bounds
+bool is_out(const WindowClient* client);
 
 
 // ##################
