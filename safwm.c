@@ -332,8 +332,8 @@ void event_configure(XEvent* event) {
     XConfigureRequestEvent *ev = &event->xconfigurerequest;
 
     XConfigureWindow(wm.display, ev->window, ev->value_mask, &(XWindowChanges) {
-        .x          = ev->x,
-        .y          = ev->y,
+        .x          = ev->x - BORDER_WIDTH,
+        .y          = ev->y - BORDER_WIDTH,
         .width      = ev->width,
         .height     = ev->height,
         .sibling    = ev->above,
@@ -342,8 +342,8 @@ void event_configure(XEvent* event) {
 
     WindowClient* client = wm_get_client(ev->window);
     if (client) {
-        client->rect.x = ev->x;
-        client->rect.y = ev->y;
+        client->rect.x = ev->x - BORDER_WIDTH;
+        client->rect.y = ev->y - BORDER_WIDTH;
         client->rect.w = ev->width;
         client->rect.h = ev->height;
         client_update_rect(client);
