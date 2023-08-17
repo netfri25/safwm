@@ -49,7 +49,6 @@ static void (*events[LASTEvent])(XEvent* e) = {
     [DestroyNotify]    = event_destroy,
     [EnterNotify]      = event_enter,
     [MotionNotify]     = event_motion,
-    [CreateNotify]     = event_create,
     [ResizeRequest]    = event_resize,
 };
 
@@ -59,13 +58,6 @@ int main(void) {
     wm.root = DefaultRootWindow(wm.display);
     wm.screen = DefaultScreen(wm.display);
     wm.mouse.subwindow = None;
-
-    for (size_t i = 0; i < WORKSPACE_COUNT; i++) {
-        wm.workspace[i] = (Workspace){0};
-        for (size_t j = 0; j < WORKSPACE_CLIENTS_CAPACITY; j++) {
-            wm.workspace[i].client[j] = (WindowClient){0};
-        }
-    }
 
     Cursor cursor = XCreateFontCursor(wm.display, 68);
     XDefineCursor(wm.display, wm.root, cursor);
@@ -377,6 +369,18 @@ void event_map_request(XEvent* event) {
     Window window = event->xmaprequest.window;
     XSelectInput(wm.display, window, StructureNotifyMask|EnterWindowMask);
     XMapWindow(wm.display, window);
+    WindowClient this_client = client_from_window(window);
+
+    Workspace* ws = wm_workspace();
+    size_t client_index = ws_next_empty(ws);
+
+    ws_set_client(ws, client_index, this_client);
+
+    WindowClient* client = ws->client + client_index;
+    client_focus(client);
+    int x = client->rect.x;
+    int y = client->rect.y;
+    if (x + y == 0) client_center(client);
 }
 
 void event_mapping(XEvent* event) {
@@ -438,24 +442,6 @@ void event_motion(XEvent* event) {
 
     wm.mouse.x_root = event->xmotion.x_root;
     wm.mouse.y_root = event->xmotion.y_root;
-}
-
-void event_create(XEvent* event) {
-    Window window = event->xcreatewindow.window;
-    WindowClient this_client = client_from_window(window);
-
-    printf("Created %lu\n", window);
-
-    Workspace* ws = wm_workspace();
-    size_t client_index = ws_next_empty(ws);
-
-    ws_set_client(ws, client_index, this_client);
-
-    WindowClient* client = ws->client + client_index;
-    client_focus(client);
-    int x = client->rect.x;
-    int y = client->rect.y;
-    if (x + y == 0) client_center(client);
 }
 
 void event_resize(XEvent* event) {
@@ -594,7 +580,6 @@ void win_next(Arg arg) {
     (void) arg;
     WindowClient* client = ws_next_window(wm_workspace());
     if (client == NULL) return;
-    printf("Client(window: %lu)\n", client->window);
     client_focus(client);
     XRaiseWindow(wm.display, client->window);
 }

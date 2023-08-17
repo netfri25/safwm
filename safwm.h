@@ -192,7 +192,6 @@ void event_mapping(XEvent* event);
 void event_destroy(XEvent* event);
 void event_enter(XEvent* event);
 void event_motion(XEvent* event);
-void event_create(XEvent* event);
 void event_resize(XEvent* event);
 
 // handle x11 errors
