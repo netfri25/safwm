@@ -429,14 +429,13 @@ void event_enter(XEvent* event) {
 }
 
 void event_motion(XEvent* event) {
-    bool is_pressed = wm.mouse.button == Button1 || wm.mouse.button == Button3;
-    if (!is_pressed) return;
-
     WindowClient* client = ws_get(wm_workspace(), wm.mouse.subwindow);
-    if (client == NULL || client->window == None || client->fullscreen) return;
 
     while (XCheckTypedEvent(wm.display, MotionNotify, event));
     while (XCheckTypedWindowEvent(wm.display, client->window, MotionNotify, event));
+
+    bool is_pressed = wm.mouse.button == Button1 || wm.mouse.button == Button3;
+    if (client == NULL || client->window == None || client->fullscreen || !is_pressed) return;
 
     int dx = event->xmotion.x_root - wm.mouse.x_root;
     int dy = event->xmotion.y_root - wm.mouse.y_root;
