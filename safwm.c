@@ -314,7 +314,7 @@ bool is_out(const WindowClient* client) {
     int x = client->rect.x;
     int y = client->rect.y;
     unsigned w = client->rect.w;
-    unsigned h = client->rect.w;
+    unsigned h = client->rect.h;
     return x - BORDER_WIDTH <= 0
         || y - BORDER_WIDTH <= 0
         || x + w + 2 * BORDER_WIDTH >= SCREEN_WIDTH
