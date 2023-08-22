@@ -16,8 +16,8 @@
 #define SNAP_RATIO 0.55
 
 #define SAVE_SCREENSHOT "tee $HOME/Pictures/Screenshots/$(date +'Screenshot-from-%Y-%m-%d-%H-%M-%S').png | xclip -selection clipboard -t image/png"
-#define SCREENSHOT_CMD           "maim | "    SAVE_SCREENSHOT
-#define SELECTION_SCREENSHOT_CMD "maim -s | " SAVE_SCREENSHOT
+#define SCREENSHOT_CMD           "maim -u | "    SAVE_SCREENSHOT
+#define SELECTION_SCREENSHOT_CMD "maim -u -s | " SAVE_SCREENSHOT
 
 #define MENU_CMD    "rofi -show drun -theme gruvbox-dark"
 #define TERM_CMD    "alacritty"
