@@ -507,14 +507,22 @@ void close_win(Arg arg) {
     // I have no clue what this does
     if (wm_workspace()->hidden) return;
     (void) arg;
-    XEvent msg = {0};
-    msg.xclient.type = ClientMessage;
-    msg.xclient.message_type = XInternAtom(wm.display, "WM_PROTOCOLS", false);
-    msg.xclient.window = wm_client()->window;
-    msg.xclient.format = 32;
-    msg.xclient.data.l[0] = XInternAtom(wm.display, "WM_DELETE_WINDOW", false);
-    XSendEvent(wm.display, wm_client()->window, false, 0, &msg);
-    XKillClient(wm.display, wm_client()->window);
+    if (wm_client()->window) {
+        XEvent msg = {0};
+        msg.xclient.type = ClientMessage;
+        msg.xclient.message_type = XInternAtom(wm.display, "WM_PROTOCOLS", false);
+        msg.xclient.window = wm_client()->window;
+        msg.xclient.format = 32;
+        msg.xclient.data.l[0] = XInternAtom(wm.display, "WM_DELETE_WINDOW", false);
+        msg.xclient.data.l[1] = CurrentTime;
+        XSendEvent(wm.display, wm_client()->window, false, NoEventMask, &msg);
+    } else {
+        XGrabServer(wm.display);
+        XSetCloseDownMode(wm.display, DestroyAll);
+        XKillClient(wm.display, wm_client()->window);
+        XSync(wm.display, False);
+        XUngrabServer(wm.display);
+    }
 
     // WARN: pointer arithmetics
     size_t client_index = wm_client() - wm_workspace()->client;
