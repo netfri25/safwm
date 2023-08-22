@@ -430,8 +430,6 @@ void event_enter(XEvent* event) {
     while (XCheckTypedWindowEvent(wm.display, wm.mouse.subwindow, MotionNotify, event));
 
     Workspace* ws = wm_workspace();
-    if (ws->hidden) return;
-
     WindowClient* client = ws_get(ws, event->xcrossing.window);
     if (client == NULL) return;
     client_focus(client);
@@ -507,16 +505,15 @@ void close_win(Arg arg) {
     // I have no clue what this does
     if (wm_workspace()->hidden) return;
     (void) arg;
-    if (wm_client()->window) {
-        XEvent msg = {0};
-        msg.xclient.type = ClientMessage;
-        msg.xclient.message_type = XInternAtom(wm.display, "WM_PROTOCOLS", false);
-        msg.xclient.window = wm_client()->window;
-        msg.xclient.format = 32;
-        msg.xclient.data.l[0] = XInternAtom(wm.display, "WM_DELETE_WINDOW", false);
-        msg.xclient.data.l[1] = CurrentTime;
-        XSendEvent(wm.display, wm_client()->window, false, NoEventMask, &msg);
-    } else {
+    XEvent msg = {0};
+    msg.xclient.type = ClientMessage;
+    msg.xclient.message_type = XInternAtom(wm.display, "WM_PROTOCOLS", false);
+    msg.xclient.window = wm_client()->window;
+    msg.xclient.format = 32;
+    msg.xclient.data.l[0] = XInternAtom(wm.display, "WM_DELETE_WINDOW", false);
+    msg.xclient.data.l[1] = CurrentTime;
+
+    if (!XSendEvent(wm.display, wm_client()->window, false, NoEventMask, &msg)) {
         XGrabServer(wm.display);
         XSetCloseDownMode(wm.display, DestroyAll);
         XKillClient(wm.display, wm_client()->window);
