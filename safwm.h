@@ -72,6 +72,7 @@ void client_unfullscreen(WindowClient* client);
 typedef struct {
     WindowClient client[WORKSPACE_CLIENTS_CAPACITY]; // might have holes
     size_t focused_index; // the index of the focused_client
+    bool hidden;
 } Workspace;
 
 // focus all the windows in the current workspace
@@ -250,3 +251,6 @@ void win_prev(Arg arg);
 
 // slice the current window in the given direction (snapping)
 void win_slice(Arg arg);
+
+// toggle the workspace between hidden and not hidden
+void ws_toggle_visibility(Arg arg);

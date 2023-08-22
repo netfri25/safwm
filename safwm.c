@@ -7,6 +7,7 @@
 // [*] add all of the keybindings from my old wm
 // [*] Alt+Tab window switching in the current workspace
 // [*] simple pseudo-tiling support
+// [*] support for toggling all the windows in the current desktop (hiding)
 // [ ] "undo" for the pseudo-tiling
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
@@ -325,8 +326,10 @@ void event_button_press(XEvent* event) {
 
     // I don't care if there is a click on nothing
     if (window == None) return;
+    Workspace* ws = wm_workspace();
+    if (ws->hidden) return;
 
-    ssize_t client_index = ws_find(wm_workspace(), window);
+    ssize_t client_index = ws_find(ws, window);
     assert(client_index >= 0 && "how did you click a client that doesn't exist in the visible workspace?");
 
     wm.mouse = event->xbutton;
@@ -382,15 +385,18 @@ void event_key_press(XEvent* event) {
 void event_map_request(XEvent* event) {
     // gets called when a new window is created, and it wants to "map" to the screen
     Window window = event->xmaprequest.window;
-    XSelectInput(wm.display, window, StructureNotifyMask|EnterWindowMask);
-    XMapWindow(wm.display, window);
-    WindowClient this_client = client_from_window(window);
-
     Workspace* ws = wm_workspace();
+    XSelectInput(wm.display, window, StructureNotifyMask|EnterWindowMask);
+    if (!ws->hidden) XMapWindow(wm.display, window);
+
+    // remove if found in a differnet workspace
+    WindowClient* found_client = wm_get_client(window);
+    if (found_client) found_client->window = None;
+
+    // insert to workspace
+    WindowClient this_client = client_from_window(window);
     size_t client_index = ws_next_empty(ws);
-
     ws_set_client(ws, client_index, this_client);
-
     WindowClient* client = ws->client + client_index;
     client_focus(client);
     if (is_out(client)) client_center(client);
@@ -423,19 +429,23 @@ void event_enter(XEvent* event) {
     while (XCheckTypedEvent(wm.display, EnterNotify, event));
     while (XCheckTypedWindowEvent(wm.display, wm.mouse.subwindow, MotionNotify, event));
 
-    WindowClient* client = ws_get(wm_workspace(), event->xcrossing.window);
+    Workspace* ws = wm_workspace();
+    if (ws->hidden) return;
+
+    WindowClient* client = ws_get(ws, event->xcrossing.window);
     if (client == NULL) return;
     client_focus(client);
 }
 
 void event_motion(XEvent* event) {
-    WindowClient* client = ws_get(wm_workspace(), wm.mouse.subwindow);
+    Workspace* ws = wm_workspace();
+    WindowClient* client = ws_get(ws, wm.mouse.subwindow);
 
     while (XCheckTypedEvent(wm.display, MotionNotify, event));
     while (XCheckTypedWindowEvent(wm.display, client->window, MotionNotify, event));
 
     bool is_pressed = wm.mouse.button == Button1 || wm.mouse.button == Button3;
-    if (client == NULL || client->window == None || client->fullscreen || !is_pressed) return;
+    if (ws->hidden || client == NULL || client->window == None || client->fullscreen || !is_pressed) return;
 
     int dx = event->xmotion.x_root - wm.mouse.x_root;
     int dy = event->xmotion.y_root - wm.mouse.y_root;
@@ -495,6 +505,7 @@ void execute_cmd(Arg arg) {
 
 void close_win(Arg arg) {
     // I have no clue what this does
+    if (wm_workspace()->hidden) return;
     (void) arg;
     XEvent msg = {0};
     msg.xclient.type = ClientMessage;
@@ -503,6 +514,7 @@ void close_win(Arg arg) {
     msg.xclient.format = 32;
     msg.xclient.data.l[0] = XInternAtom(wm.display, "WM_DELETE_WINDOW", false);
     XSendEvent(wm.display, wm_client()->window, false, 0, &msg);
+    XKillClient(wm.display, wm_client()->window);
 
     // WARN: pointer arithmetics
     size_t client_index = wm_client() - wm_workspace()->client;
@@ -511,17 +523,20 @@ void close_win(Arg arg) {
 
 void center_win(Arg arg) {
     (void) arg;
+    if (wm_workspace()->hidden) return;
     client_center(wm_client());
 }
 
 void maximize_win(Arg arg) {
     (void) arg;
+    if (wm_workspace()->hidden) return;
     client_maximize(wm_client());
 }
 
 void fullscreen_win(Arg arg) {
     (void) arg;
 
+    if (wm_workspace()->hidden) return;
     if (wm_client()->fullscreen) {
         client_unfullscreen(wm_client());
     } else {
@@ -549,7 +564,7 @@ void goto_ws(Arg arg) {
     Workspace* old_ws = wm_workspace();
 
     ws_unfocus(old_ws);
-    ws_focus(new_ws);
+    if (!new_ws->hidden) ws_focus(new_ws);
     wm.current_ws = new_ws_index;
 }
 
@@ -569,8 +584,9 @@ void move_win_to_ws(Arg arg) {
     Window window = wm_client()->window;
     size_t from = wm.current_ws;
     size_t to   = arg.i;
-    ws_unfocus(wm.workspace + wm.current_ws);
     ws_move_client(from, to, window);
+    if (wm_workspace()->hidden) return;
+    ws_unfocus(wm.workspace + wm.current_ws);
     ws_focus(wm.workspace + wm.current_ws);
 }
 
@@ -590,6 +606,7 @@ void move_win_to_prev_ws(Arg arg) {
 
 void win_next(Arg arg) {
     (void) arg;
+    if (wm_workspace()->hidden) return;
     WindowClient* client = ws_next_window(wm_workspace());
     if (client == NULL) return;
     client_focus(client);
@@ -598,6 +615,7 @@ void win_next(Arg arg) {
 
 void win_prev(Arg arg) {
     (void) arg;
+    if (wm_workspace()->hidden) return;
     WindowClient* client = ws_prev_window(wm_workspace());
     if (client == NULL) return;
     client_focus(client);
@@ -607,7 +625,7 @@ void win_prev(Arg arg) {
 // coolest fucking code I've ever written
 void win_slice(Arg arg) {
     WindowClient* client = wm_client();
-    if (!client || client->window == None || client->fullscreen) return;
+    if (wm_workspace()->hidden || !client || client->window == None || client->fullscreen) return;
 
     enum Direction direction = arg.i;
     bool x_axis = direction & 1;
@@ -627,6 +645,18 @@ void win_slice(Arg arg) {
     *size = MAX(1, new_size);
 
     client_update_rect(client);
+}
+
+void ws_toggle_visibility(Arg arg) {
+    (void) arg;
+    Workspace* ws = wm_workspace();
+    if (ws->hidden) {
+        ws_focus(ws); // unhide
+    } else {
+        ws_unfocus(ws); // hide
+    }
+
+    ws->hidden = !ws->hidden;
 }
 
 static void update_numlock_mask(void) {

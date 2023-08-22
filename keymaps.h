@@ -38,6 +38,8 @@ const Keymap keymaps[] = {
     { Mod1Mask,           XK_Tab, win_next, {0}},
     { Mod1Mask|ShiftMask, XK_Tab, win_prev, {0}},
 
+    { MOD, XK_v, ws_toggle_visibility, {0}},
+
     // applications
     { MOD, XK_s,      execute_cmd, { .com = MENU_CMD }},
     { MOD, XK_Return, execute_cmd, { .com = TERM_CMD }},
