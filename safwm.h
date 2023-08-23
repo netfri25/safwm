@@ -181,6 +181,10 @@ void grab_window_input(Window window);
 // returns true if the window is out of bounds
 bool is_out(const WindowClient* client);
 
+// returns true if the window can't fit in the screen
+bool is_really_big(const WindowClient* client);
+
+
 
 // ##################
 // # Event handling #
