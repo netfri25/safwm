@@ -71,8 +71,8 @@ exec safwm
 | `Super` + `Shift` + `4` | move the focused window to workspace 4                        |
 | `Super` + `d`           | go to the next workspace                                      |
 | `Super` + `a`           | go to the previous workspace                                  |
-| `Super` + `Shift` + `d` | move the focused window to the next workspace                 |
-| `Super` + `Shift` + `a` | move the focused window to the previous workspace             |
+| `Super` + `Shift` + `d` | drag the focused window to the next workspace                 |
+| `Super` + `Shift` + `a` | drag the focused window to the previous workspace             |
 | `Alt` + `Tab`           | focus the next window in the current workspace                |
 | `Alt` + `Shift` + `Tab` | focues the previous window in the current workspace           |
 | `Super` + `v`           | toggle the visibility of all windows in the current workspace |
