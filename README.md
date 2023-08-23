@@ -1,6 +1,9 @@
 # safwm
 Simple AF window manager
 
+<img src='images/not-really-tiling.png'>
+<img src='images/floating.png'>
+
 ## But why another window manager?
 I'm a man of simplicity.
 I used many window managers for a really long time (about a week) and I've came to the realization of what is the best window manager that can be created (imo ofc).\
