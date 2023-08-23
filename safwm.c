@@ -337,7 +337,7 @@ void event_button_press(XEvent* event) {
     if (ws->hidden) return;
 
     ssize_t client_index = ws_find(ws, window);
-    assert(client_index >= 0 && "how did you click a client that doesn't exist in the visible workspace?");
+    if (client_index < 0) return;
 
     wm.mouse = event->xbutton;
     wm_workspace()->focused_index = client_index;
