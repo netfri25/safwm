@@ -408,8 +408,7 @@ void event_map_request(XEvent* event) {
     ws_set_client(ws, client_index, this_client);
     WindowClient* client = ws->client + client_index;
     client_focus(client);
-    if (is_really_big(client)) client_maximize(client);
-    if (is_out(client)) client_center(client);
+    client_maximize(client);
 }
 
 void event_mapping(XEvent* event) {
