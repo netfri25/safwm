@@ -597,10 +597,10 @@ void move_win_to_ws(Arg arg) {
     Window window = wm_client()->window;
     size_t from = wm.current_ws;
     size_t to   = arg.i;
-    bool hidden = wm_workspace()->hidden;
-    if (!hidden) ws_unfocus(wm.workspace + wm.current_ws);
+    Workspace* ws = wm_workspace();
+    ws_unfocus(ws);
     ws_move_client(from, to, window);
-    if (!hidden) ws_focus(wm.workspace + wm.current_ws);
+    if (!ws->hidden) ws_focus(ws);
 }
 
 void move_win_to_next_ws(Arg arg) {
