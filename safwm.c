@@ -324,8 +324,7 @@ bool is_out(const WindowClient* client) {
 bool is_really_big(const WindowClient* client) {
     unsigned w = client->rect.w;
     unsigned h = client->rect.h;
-    return w + 2 * BORDER_WIDTH >= SCREEN_WIDTH
-        || h + 2 * BORDER_WIDTH >= SCREEN_HEIGHT;
+    return w > SCREEN_WIDTH || h > SCREEN_HEIGHT;
 }
 
 void event_button_press(XEvent* event) {
