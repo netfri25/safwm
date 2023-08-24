@@ -321,12 +321,6 @@ bool is_out(const WindowClient* client) {
         || y + h + 2 * BORDER_WIDTH >= SCREEN_HEIGHT;
 }
 
-bool is_really_big(const WindowClient* client) {
-    unsigned w = client->rect.w;
-    unsigned h = client->rect.h;
-    return w > SCREEN_WIDTH || h > SCREEN_HEIGHT;
-}
-
 void event_button_press(XEvent* event) {
     Window window = event->xbutton.subwindow;
 
@@ -354,9 +348,9 @@ void event_configure(XEvent* event) {
     WindowClient* client = wm_get_client(ev->window);
     if (!client) return;
 
-    if (is_really_big(client)) {
-        client_maximize(client);
-    } else if (is_out(client)) {
+    if (is_out(client)) {
+        client->rect.w = ev->width;
+        client->rect.h = ev->height;
         client_center(client);
     } else {
         client->rect.x = ev->x,
