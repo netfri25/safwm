@@ -246,7 +246,7 @@ WindowClient ws_set_client(Workspace* ws, size_t index, WindowClient client) {
 }
 
 WindowClient ws_remove_client(Workspace* ws, size_t index) {
-    return ws_set_client(ws, index, (WindowClient){ .window = None });
+    return ws_set_client(ws, index, (WindowClient){0});
 }
 
 void ws_insert(Workspace* ws, WindowClient client) {
