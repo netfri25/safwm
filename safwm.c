@@ -359,8 +359,8 @@ void event_configure(XEvent* event) {
     } else if (is_out(client)) {
         client_center(client);
     } else {
-        client->rect.x = ev->x - BORDER_WIDTH,
-        client->rect.y = ev->y - BORDER_WIDTH,
+        client->rect.x = ev->x,
+        client->rect.y = ev->y,
         client->rect.w = ev->width;
         client->rect.h = ev->height;
         client_update_rect(client);
@@ -407,7 +407,7 @@ void event_map_request(XEvent* event) {
     ws_set_client(ws, client_index, this_client);
     WindowClient* client = ws->client + client_index;
     client_focus(client);
-    client_maximize(client);
+    client_center(client);
 }
 
 void event_mapping(XEvent* event) {
