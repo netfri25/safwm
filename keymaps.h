@@ -5,14 +5,14 @@
 
 const Keymap keymaps[] = {
     // general window manager keys
-    { MOD|ShiftMask, XK_q, quit_wm, { 0 }},
+    { MOD|ShiftMask, XK_q, quit_wm, {0}},
 
 
     // window controls
-    { MOD, XK_c, center_win,     { 0 }},
-    { MOD, XK_m, maximize_win,   { 0 }},
-    { MOD, XK_f, fullscreen_win, { 0 }},
-    { MOD, XK_q, close_win,      { 0 }},
+    { MOD, XK_c, center_win,     {0}},
+    { MOD, XK_m, maximize_win,   {0}},
+    { MOD, XK_f, fullscreen_win, {0}},
+    { MOD, XK_q, close_win,      {0}},
 
     { MOD, XK_k, win_slice, { .i = D_UP }},
     { MOD, XK_j, win_slice, { .i = D_DOWN }},
