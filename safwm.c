@@ -35,6 +35,7 @@
 static void update_numlock_mask(void);
 static size_t next_ws(void);
 static size_t prev_ws(void);
+static void win_swap_func(WindowClient* (*func)(Workspace* ws));
 
 static unsigned numlockmask = 0;
 
@@ -652,6 +653,41 @@ void win_slice(Arg arg) {
     *size = MAX(1, new_size);
 
     client_update_rect(client);
+}
+
+static void win_swap_func(WindowClient* (*func)(Workspace* ws)) {
+    Workspace* ws = wm_workspace();
+    if (ws->hidden) return;
+
+    // find the windows
+    WindowClient* client1 = wm_client();
+    WindowClient* client2 = func(ws);
+    if (client1 == client2
+        || client1 == NULL
+        || client2 == NULL)
+        return;
+
+    // set the focus
+    client_focus(client2);
+
+    // swap the windows
+    Window win1 = client1->window;
+    client1->window = client2->window;
+    client2->window = win1;
+
+    // update the clients
+    client_update_rect(client1);
+    client_update_rect(client2);
+}
+
+void win_swap_next(Arg arg) {
+    (void) arg;
+    win_swap_func(ws_next_window);
+}
+
+void win_swap_prev(Arg arg) {
+    (void) arg;
+    win_swap_func(ws_prev_window);
 }
 
 void ws_toggle_visibility(Arg arg) {

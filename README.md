@@ -43,19 +43,21 @@ exec safwm
 
 
 **Window related keybindings**
-| Key Combo       | action              |
-| --------------- | ------------------- |
-| `Mouse`         | focus under cursor  |
-| `Super` + `LMB` | move window         |
-| `Super` + `RMB` | resize window       |
-| `Super` + `c`   | center window       |
-| `Super` + `m`   | maximize window     |
-| `Super` + `f`   | fullscreen window   |
-| `Super` + `q`   | quit window         |
-| `Super` + `h`   | snap left           |
-| `Super` + `l`   | snap right          |
-| `Super` + `k`   | snap up             |
-| `Super` + `j`   | snap down           |
+| Key Combo         | action                        |
+| ----------------- | ----------------------------- |
+| `Mouse`           | focus under cursor            |
+| `Super` + `LMB`   | move window                   |
+| `Super` + `RMB`   | resize window                 |
+| `Super` + `c`     | center window                 |
+| `Super` + `m`     | maximize window               |
+| `Super` + `f`     | fullscreen window             |
+| `Super` + `q`     | quit window                   |
+| `Super` + `h`     | snap left                     |
+| `Super` + `l`     | snap right                    |
+| `Super` + `k`     | snap up                       |
+| `Super` + `j`     | snap down                     |
+| `Super` + `Left`  | swap with the previous window |
+| `Super` + `Right` | swap with the next window     |
 
 
 **Workspace keybindings**

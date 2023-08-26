@@ -256,5 +256,11 @@ void win_prev(Arg arg);
 // slice the current window in the given direction (snapping)
 void win_slice(Arg arg);
 
+// swap the current window with the next window
+void win_swap_next(Arg arg);
+
+// swap the current window with the previous window
+void win_swap_prev(Arg arg);
+
 // toggle the workspace between hidden and not hidden
 void ws_toggle_visibility(Arg arg);

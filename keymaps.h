@@ -19,6 +19,9 @@ const Keymap keymaps[] = {
     { MOD, XK_l, win_slice, { .i = D_RIGHT }},
     { MOD, XK_h, win_slice, { .i = D_LEFT }},
 
+    { MOD, XK_Left,  win_swap_prev, {0}},
+    { MOD, XK_Right, win_swap_next, {0}},
+
     // workspace controls
     { MOD, XK_1, goto_ws, { .i = 0 }},
     { MOD, XK_2, goto_ws, { .i = 1 }},
