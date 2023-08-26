@@ -667,8 +667,9 @@ static void win_swap_func(WindowClient* (*func)(Workspace* ws)) {
         || client2 == NULL)
         return;
 
-    // set the focus
-    client_focus(client2);
+    WindowClient client_temp = *client1;
+    *client1 = *client2;
+    *client2 = client_temp;
 
     // swap the windows
     Window win1 = client1->window;
@@ -678,6 +679,8 @@ static void win_swap_func(WindowClient* (*func)(Workspace* ws)) {
     // update the clients
     client_update_rect(client1);
     client_update_rect(client2);
+
+    client_focus(client2);
 }
 
 void win_swap_next(Arg arg) {
