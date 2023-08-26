@@ -1,5 +1,5 @@
 # safwm
-Simple AF window manager
+a Simple and Adequate Floating Window Manager
 
 <img src='images/not-really-tiling.png'>
 <img src='images/floating.png'>
