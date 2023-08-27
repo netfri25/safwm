@@ -33,3 +33,6 @@
 #define MEDIA_NEXT_CMD   "playerctl next"
 #define MEDIA_PREV_CMD   "playerctl previous"
 #define MEDIA_TOGGLE_CMD "playerctl play-pause"
+
+#define ENABLE_BAR  "polybar-msg cmd show"
+#define DISABLE_BAR "polybar-msg cmd hide"

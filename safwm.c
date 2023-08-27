@@ -68,6 +68,9 @@ int main(void) {
     XSelectInput(wm.display, wm.root, SubstructureRedirectMask|SubstructureNotifyMask);
     grab_global_input();
 
+    // disable the bar on startup
+    execute_cmd((Arg){ .com = DISABLE_BAR });
+
     wm.keep_alive = true;
     while (wm.keep_alive) {
         XEvent event;
@@ -569,6 +572,7 @@ static size_t prev_ws(void) {
 void goto_ws(Arg arg) {
     size_t new_ws_index = arg.i;
     Workspace* new_ws = wm.workspace + new_ws_index;
+    execute_cmd((Arg){ .com = new_ws->hidden ? ENABLE_BAR : DISABLE_BAR });
     Workspace* old_ws = wm_workspace();
 
     ws_unfocus(old_ws);
@@ -697,8 +701,10 @@ void ws_toggle_visibility(Arg arg) {
     (void) arg;
     Workspace* ws = wm_workspace();
     if (ws->hidden) {
+        execute_cmd((Arg){ .com = DISABLE_BAR });
         ws_focus(ws); // unhide
     } else {
+        execute_cmd((Arg){ .com = ENABLE_BAR });
         ws_unfocus(ws); // hide
     }
 
