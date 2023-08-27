@@ -43,6 +43,7 @@ const Keymap keymaps[] = {
 
     { MOD, XK_v, ws_toggle_visibility, {0}},
 
+
     // applications
     { MOD, XK_s,      execute_cmd, { .com = MENU_CMD }},
     { MOD, XK_Return, execute_cmd, { .com = TERM_CMD }},
