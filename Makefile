@@ -1,7 +1,7 @@
 CFLAGS += -std=c2x -Wall -Wextra -pedantic
 CFLAGS += -I/usr/include/freetype2
 PREFIX ?= /usr
-LINKIN += -lX11
+LINKIN += -lX11 -lpthread
 BINDIR ?= $(PREFIX)/bin
 CC     ?= gcc
 

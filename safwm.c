@@ -14,11 +14,15 @@
 // [ ] support for external bars (simple padding at the top)
 // [ ] add an array of window names to not center on creation (e.g. "neovide")
 
+#define _POSIX_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <assert.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <pthread.h>
 
 #include <X11/Xlib.h>
 #include <X11/X.h>
@@ -499,12 +503,31 @@ void quit_wm(Arg arg) {
     wm.keep_alive = false;
 }
 
-void execute_cmd(Arg arg) {
-    if (fork()) return;
-    if (wm.display) close(ConnectionNumber(wm.display));
+static void* child_killer(void* pid_ptr) {
+    pid_t pid = *(pid_t*) pid_ptr;
+    free(pid_ptr);
+    int status;
+    waitpid(pid, &status, 0);
+    kill(pid, SIGTERM);
+    if (!WIFEXITED(status)) {
+        kill(pid, SIGKILL);
+    }
 
-    setsid();
-    (void) !system(arg.com);
+    return NULL;
+}
+
+void execute_cmd(Arg arg) {
+    pid_t pid;
+    if ((pid = fork())) {
+        pthread_t thread_id;
+        pid_t* pid_ptr = malloc(sizeof(pid_t));
+        *pid_ptr = pid;
+        pthread_create(&thread_id, NULL, child_killer, pid_ptr);
+        return;
+    }
+
+    if (wm.display) close(ConnectionNumber(wm.display));
+    exit(system(arg.com));
 }
 
 void close_win(Arg arg) {
