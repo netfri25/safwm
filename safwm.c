@@ -71,6 +71,9 @@ int main(void) {
     XSelectInput(wm.display, wm.root, SubstructureRedirectMask|SubstructureNotifyMask);
     grab_global_input();
 
+    (void)! system("~/.safwm/autostart_blocking.sh");     // blocking startup file
+    execute_cmd((Arg){ .com = "~/.safwm/autostart.sh" }); // non-blocking startup file
+
     wm.keep_alive = true;
     while (wm.keep_alive) {
         XEvent event;
