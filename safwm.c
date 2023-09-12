@@ -11,8 +11,7 @@
 // [ ] "undo" for the pseudo-tiling
 // [ ] make maximize toggleable (maybe?)
 // [ ] middle click on a window to set the input focus only to him ("pinning")
-// [ ] support for external bars (simple padding at the top)
-// [ ] add an array of window names to not center on creation (e.g. "neovide")
+// [*] support for external bars (simple padding at the top)
 
 #define _POSIX_SOURCE
 #include <stdio.h>
