@@ -263,6 +263,9 @@ void win_swap_next(Arg arg);
 // swap the current window with the previous window
 void win_swap_prev(Arg arg);
 
+// move the window in a given direction
+void win_move(Arg arg);
+
 // toggle the workspace between hidden and not hidden
 void ws_toggle_visibility(Arg arg);
 

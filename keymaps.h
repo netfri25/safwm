@@ -19,6 +19,11 @@ const Keymap keymaps[] = {
     { MOD, XK_l, win_slice, { .i = D_RIGHT }},
     { MOD, XK_h, win_slice, { .i = D_LEFT }},
 
+    { MOD|ShiftMask, XK_k, win_move, { .i = D_UP }},
+    { MOD|ShiftMask, XK_j, win_move, { .i = D_DOWN }},
+    { MOD|ShiftMask, XK_l, win_move, { .i = D_RIGHT }},
+    { MOD|ShiftMask, XK_h, win_move, { .i = D_LEFT }},
+
     { MOD, XK_Left,  win_swap_prev, {0}},
     { MOD, XK_Right, win_swap_next, {0}},
 

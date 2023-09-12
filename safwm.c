@@ -721,6 +721,23 @@ void win_swap_prev(Arg arg) {
     win_swap_func(ws_prev_window);
 }
 
+void win_move(Arg arg) {
+    WindowClient* client = wm_client();
+    if (wm_workspace()->hidden || !client || client->window == None || client->fullscreen) return;
+
+    enum Direction direction = arg.i;
+    bool x_axis = direction & 1;
+    bool opposite = (direction >> 1) & 1;
+    int* pos = (int* [2]) { &client->rect.y, &client->rect.x }[x_axis];
+    if (opposite) {
+        *pos += WINDOW_MOVE_PX;
+    } else {
+        *pos -= WINDOW_MOVE_PX;
+    }
+
+    client_update_rect(client);
+}
+
 void ws_toggle_visibility(Arg arg) {
     (void) arg;
     Workspace* ws = wm_workspace();
