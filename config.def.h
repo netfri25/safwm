@@ -34,5 +34,7 @@
 #define MEDIA_PREV_CMD   "playerctl previous"
 #define MEDIA_TOGGLE_CMD "playerctl play-pause"
 
+#define BAR_HEIGHT (24 + 5)
+
 #define ENABLE_BAR  "polybar-msg cmd show"
 #define DISABLE_BAR "polybar-msg cmd hide"

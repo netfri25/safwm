@@ -72,9 +72,6 @@ int main(void) {
     XSelectInput(wm.display, wm.root, SubstructureRedirectMask|SubstructureNotifyMask);
     grab_global_input();
 
-    // disable the bar on startup
-    execute_cmd((Arg){ .com = DISABLE_BAR });
-
     wm.keep_alive = true;
     while (wm.keep_alive) {
         XEvent event;
@@ -150,6 +147,12 @@ void client_maximize(WindowClient* client) {
     };
 
     client_center(client);
+
+    if (!wm.bar_hidden) {
+        client->rect.h -= BAR_HEIGHT + WINDOW_GAP;
+        client->rect.y += BAR_HEIGHT + WINDOW_GAP;
+        client_update_rect(client);
+    }
 }
 
 void client_fullscreen(WindowClient* client) {
@@ -595,7 +598,6 @@ static size_t prev_ws(void) {
 void goto_ws(Arg arg) {
     size_t new_ws_index = arg.i;
     Workspace* new_ws = wm.workspace + new_ws_index;
-    execute_cmd((Arg){ .com = new_ws->hidden ? ENABLE_BAR : DISABLE_BAR });
     Workspace* old_ws = wm_workspace();
 
     ws_unfocus(old_ws);
@@ -723,15 +725,8 @@ void win_swap_prev(Arg arg) {
 void ws_toggle_visibility(Arg arg) {
     (void) arg;
     Workspace* ws = wm_workspace();
-    if (ws->hidden) {
-        execute_cmd((Arg){ .com = DISABLE_BAR });
-        ws_focus(ws); // unhide
-    } else {
-        execute_cmd((Arg){ .com = ENABLE_BAR });
-        ws_unfocus(ws); // hide
-    }
-
     ws->hidden = !ws->hidden;
+    (ws->hidden ? ws_unfocus : ws_focus)(ws);
 }
 
 static void update_numlock_mask(void) {
@@ -746,4 +741,10 @@ static void update_numlock_mask(void) {
 				== XKeysymToKeycode(wm.display, XK_Num_Lock))
 				numlockmask = (1 << i);
 	XFreeModifiermap(modmap);
+}
+
+void toggle_bar(Arg arg) {
+    (void) arg;
+    wm.bar_hidden = !wm.bar_hidden;
+    execute_cmd((Arg){ .com = wm.bar_hidden ? DISABLE_BAR : ENABLE_BAR });
 }

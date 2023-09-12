@@ -47,7 +47,7 @@ const Keymap keymaps[] = {
     // applications
     { MOD, XK_s,      execute_cmd, { .com = MENU_CMD }},
     { MOD, XK_Return, execute_cmd, { .com = TERM_CMD }},
-    { MOD, XK_b,      execute_cmd, { .com = BROWSER_CMD }},
+    { MOD, XK_b,      toggle_bar,  {0}},
 
     { ShiftMask, XK_Print, execute_cmd, { .com = SCREENSHOT_CMD }},
     { 0,         XK_Print, execute_cmd, { .com = SELECTION_SCREENSHOT_CMD }},

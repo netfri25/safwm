@@ -146,6 +146,7 @@ typedef struct WM {
     size_t current_ws; // the currently visible workspace
 
     int screen; // the screen identifier
+    bool bar_hidden;
 } WM;
 
 
@@ -264,3 +265,6 @@ void win_swap_prev(Arg arg);
 
 // toggle the workspace between hidden and not hidden
 void ws_toggle_visibility(Arg arg);
+
+// toggle the bar
+void toggle_bar(Arg arg);

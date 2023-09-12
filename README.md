@@ -85,7 +85,7 @@ exec safwm
 | ------------------ | ------------------------- | -------------------------------- |
 | `Super` + `s`      | application launcher      | `rofi -show drun -theme gruvbox` |
 | `Super` + `Return` | terminal                  | `alacritty`                      |
-| `Super` + `b`      | browser                   | `firefox`                        |
+| `Super` + `b`      | bar                       | toggles the bar                  |
 | `Shift` + `Print`  | screenshot                | _compilcated long command_       |
 | `Print`            | screenshot with selection | _compilcated long command_       |
 | `Super` + `F2`     | increase volume           | `amixer sset Master 5%+`         |
