@@ -3,6 +3,8 @@
 #include "safwm.h"
 #include "config.h"
 
+#define ALT Mod1Mask
+
 const Keymap keymaps[] = {
     // general window manager keys
     { MOD|ShiftMask, XK_q, quit_wm, {0}},
@@ -19,10 +21,15 @@ const Keymap keymaps[] = {
     { MOD, XK_l, win_shrink, { .i = D_RIGHT }},
     { MOD, XK_h, win_shrink, { .i = D_LEFT }},
 
-    { MOD|ShiftMask, XK_k, win_move, { .i = D_UP }},
-    { MOD|ShiftMask, XK_j, win_move, { .i = D_DOWN }},
-    { MOD|ShiftMask, XK_l, win_move, { .i = D_RIGHT }},
-    { MOD|ShiftMask, XK_h, win_move, { .i = D_LEFT }},
+    { MOD|ShiftMask, XK_k, win_extend, { .i = D_UP }},
+    { MOD|ShiftMask, XK_j, win_extend, { .i = D_DOWN }},
+    { MOD|ShiftMask, XK_l, win_extend, { .i = D_RIGHT }},
+    { MOD|ShiftMask, XK_h, win_extend, { .i = D_LEFT }},
+
+    { MOD|ALT, XK_k, win_move, { .i = D_UP }},
+    { MOD|ALT, XK_j, win_move, { .i = D_DOWN }},
+    { MOD|ALT, XK_l, win_move, { .i = D_RIGHT }},
+    { MOD|ALT, XK_h, win_move, { .i = D_LEFT }},
 
     { MOD, XK_Left,  win_swap_prev, {0}},
     { MOD, XK_Right, win_swap_next, {0}},

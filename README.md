@@ -52,14 +52,18 @@ exec safwm
 | `Super` + `m`           | maximize window               |
 | `Super` + `f`           | fullscreen window             |
 | `Super` + `q`           | quit window                   |
-| `Super` + `h`           | snap left                     |
-| `Super` + `l`           | snap right                    |
-| `Super` + `k`           | snap up                       |
-| `Super` + `j`           | snap down                     |
-| `Super` + `Shift` + `h` | move left                     |
-| `Super` + `Shift` + `l` | move right                    |
-| `Super` + `Shift` + `k` | move up                       |
-| `Super` + `Shift` + `j` | move down                     |
+| `Super` + `h`           | shrink left                   |
+| `Super` + `l`           | shrink right                  |
+| `Super` + `k`           | shrink up                     |
+| `Super` + `j`           | shrink down                   |
+| `Super` + `Shift` + `h` | extend left                   |
+| `Super` + `Shift` + `l` | extend right                  |
+| `Super` + `Shift` + `k` | extend up                     |
+| `Super` + `Shift` + `j` | extend down                   |
+| `Super` + `Alt` + `h`   | move left                     |
+| `Super` + `Alt` + `l`   | move right                    |
+| `Super` + `Alt` + `k`   | move up                       |
+| `Super` + `Alt` + `j`   | move down                     |
 | `Super` + `Left`        | swap with the previous window |
 | `Super` + `Right`       | swap with the next window     |
 

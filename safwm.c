@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <math.h>
 
 #include <X11/Xlib.h>
 #include <X11/X.h>
@@ -680,7 +681,31 @@ void win_shrink(Arg arg) {
     // delta = size0 * (1 - ratio) + gap
     float delta = *size * (1 - ratio) + WINDOW_GAP;
 
-    *pos += opposite * delta;
+    *pos += opposite * roundf(delta);
+    *size = MAX(1, new_size);
+
+    client_update_rect(client);
+}
+
+// extend the current window in the given direction (snapping)
+void win_extend(Arg arg) {
+    WindowClient* client = wm_client();
+    if (wm_workspace()->hidden || !client || client->window == None || client->fullscreen) return;
+
+    enum Direction direction = arg.i;
+    bool x_axis = direction & 1;
+    bool opposite = (direction >> 1) & 1;
+    float ratio = opposite ? SNAP_RATIO : 1 - SNAP_RATIO;
+
+    int*      pos  = (int*      [2]) { &client->rect.y, &client->rect.x }[x_axis];
+    unsigned* size = (unsigned* [2]) { &client->rect.h, &client->rect.w }[x_axis];
+
+    // size = size0 * ratio - gap
+    // size0 = (size + gap) / ratio
+    float new_size = roundf((*size + WINDOW_GAP) / ratio);
+    float delta = new_size - *size;
+
+    *pos -= (!opposite) * delta;
     *size = MAX(1, new_size);
 
     client_update_rect(client);

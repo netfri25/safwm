@@ -257,6 +257,9 @@ void win_prev(Arg arg);
 // shrink the current window in the given direction (snapping)
 void win_shrink(Arg arg);
 
+// extend the current window in the given direction (snapping)
+void win_extend(Arg arg);
+
 // swap the current window with the next window
 void win_swap_next(Arg arg);
 
