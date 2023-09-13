@@ -14,10 +14,10 @@ const Keymap keymaps[] = {
     { MOD, XK_f, fullscreen_win, {0}},
     { MOD, XK_q, close_win,      {0}},
 
-    { MOD, XK_k, win_slice, { .i = D_UP }},
-    { MOD, XK_j, win_slice, { .i = D_DOWN }},
-    { MOD, XK_l, win_slice, { .i = D_RIGHT }},
-    { MOD, XK_h, win_slice, { .i = D_LEFT }},
+    { MOD, XK_k, win_shrink, { .i = D_UP }},
+    { MOD, XK_j, win_shrink, { .i = D_DOWN }},
+    { MOD, XK_l, win_shrink, { .i = D_RIGHT }},
+    { MOD, XK_h, win_shrink, { .i = D_LEFT }},
 
     { MOD|ShiftMask, XK_k, win_move, { .i = D_UP }},
     { MOD|ShiftMask, XK_j, win_move, { .i = D_DOWN }},

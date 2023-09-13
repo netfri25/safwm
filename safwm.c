@@ -662,7 +662,7 @@ void win_prev(Arg arg) {
 }
 
 // coolest fucking code I've ever written
-void win_slice(Arg arg) {
+void win_shrink(Arg arg) {
     WindowClient* client = wm_client();
     if (wm_workspace()->hidden || !client || client->window == None || client->fullscreen) return;
 

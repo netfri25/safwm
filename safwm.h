@@ -254,8 +254,8 @@ void win_next(Arg arg);
 // switch to the previous window in the workspace
 void win_prev(Arg arg);
 
-// slice the current window in the given direction (snapping)
-void win_slice(Arg arg);
+// shrink the current window in the given direction (snapping)
+void win_shrink(Arg arg);
 
 // swap the current window with the next window
 void win_swap_next(Arg arg);
